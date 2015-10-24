@@ -1,0 +1,24 @@
+{
+  "name": "node-simple-dynamo",
+  "version": "1.0.0",
+  "description": "Simple AWS DynamoDB driver for nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "aws",
+    "dynamodb",
+    "driver",
+    "wrapper"
+  ],
+  "author": "Xabi Errotabehere",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.2.11",
+    "q": "^1.4.1",
+    "shortid": "^2.2.4"
+  }
+}
