@@ -123,4 +123,9 @@ module.exports = (function() {
 
 	};
 
+	return {
+		itemize: itemize,
+		deitemize: deitemize
+	};
+
 })();
