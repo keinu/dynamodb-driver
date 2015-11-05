@@ -2,133 +2,13 @@ var AWS = require('aws-sdk'),
 	Q = require("q"),
 	shortid = require('shortid');
 
+var utils = require("./utils");
+
 module.exports = function(awsconfig, dynamodboptions) {
 
 	AWS.config.update(awsconfig);
 
 	var dynamodb = new AWS.DynamoDB(dynamodboptions);
-
-	var itemize = function(param) {
-
-		if (param === null) {
-
-			return {"NULL" : true};
-
-		} else if (typeof param === "string") {
-
-			if (param === "") {
-				return {"NULL" : true};
-			} else {
-				return {"S" : param};
-			}
-
-		} else if (typeof param === "boolean") {
-
-			return {"BOOL" : param};
-
-		} else if (typeof param === "number") {
-
-			return {"N" : param};
-
-		} else if (Array.isArray(param) && param.length > 0) {
-
-			if (typeof param[0] === "string") {
-
-				return {"SS" : param};
-
-			} else if (typeof param[0] === "number") {
-
-				return {"NS" : param};
-
-			} else {
-
-				return {"L": param.map(function(value) {
-					return itemize(value);
-				})};
-
-			}
-
-		} else {
-
-			var object = {};
-			for (var key in param) {
-				if (param.hasOwnProperty(key)) {
-					object[key] = itemize(param[key]);
-				}
-			}
-
-			return {"M": object};
-
-		}
-
-
-	};
-
-
-	var deitemize = function(item) {
-
-		if (!item) {
-			return null;
-		}
-
-		if (item.S) {
-			return item.S;
-		}
-
-		if (item.SS) {
-			return item.SS;
-		}
-
-		if (item.NS) {
-			return item.NS;
-		}
-
-		if (typeof item.BOOL !== "undefined") {
-			return (item.BOOL) ? true : false;
-		}
-
-		if (item.NULL) {
-			return null;
-		}
-
-		if (item.L) {
-
-			var array = [];
-			item.L.forEach(function(item) {
-
-				array.push(deitemize(item));
-
-			});
-			return array;
-
-		}
-
-		if (item.M) {
-
-			var object = {};
-			Object.keys(item.M).forEach(function(key) {
-
-				object[key] = deitemize(item.M[key]);
-
-			});
-
-			if (Object.keys(object).length > 0) {
-				return object;
-			}
-
-			return null;
-
-		}
-
-		var items = {};
-		Object.keys(item).forEach(function(key) {
-
-			items[key] = deitemize(item[key]);
-
-		});
-		return items;
-
-	};
 
 	var query = function(table, conditions, index) {
 
@@ -145,12 +25,12 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			keys[condition.key] = {
 				ComparisonOperator: condition.operator,
-				AttributeValueList: [itemize(condition.value)],
+				AttributeValueList: [utils.itemize(condition.value)],
 			};
 
 		});
 
-		console.log("Query %s with index [%s] with ", table, index, JSON.stringify(keys, null, 2));
+		// console.log("Query %s with index [%s] with ", table, index, JSON.stringify(keys, null, 2));
 
 		params.KeyConditions = keys;
 
@@ -164,7 +44,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			var items = [];
 			data.Items.forEach(function(item) {
-				items.push(deitemize(item));
+				items.push(utils.deitemize(item));
 			});
 
 			deferred.resolve(items);
@@ -186,12 +66,12 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			keys[condition.key] = {
 				ComparisonOperator: condition.operator,
-				AttributeValueList: [itemize(condition.value)],
+				AttributeValueList: [utils.itemize(condition.value)],
 			};
 
 		});
 
-		console.log("Scan %s with", table, JSON.stringify(keys, null, 2));
+		// console.log("Scan %s with", table, JSON.stringify(keys, null, 2));
 
 		params.ScanFilter = keys;
 
@@ -205,7 +85,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			var items = [];
 			data.Items.forEach(function(item) {
-				items.push(deitemize(item));
+				items.push(utils.deitemize(item));
 			});
 
 			deferred.resolve(items);
@@ -236,9 +116,9 @@ module.exports = function(awsconfig, dynamodboptions) {
 			}
 
 
-			console.log("DATA", data);
+			// console.log("DATA", data);
 
-			var output = deitemize(data.Item);
+			var output = utils.deitemize(data.Item);
 			deferred.resolve(output);
 
 		});
@@ -258,7 +138,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 		ids.forEach(function(id) {
 
 			keys.push({
-				"id": itemize(id)
+				"id": utils.itemize(id)
 			});
 
 		});
@@ -268,7 +148,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Keys: keys
 		};
 
-		console.log("Get Batch Items on [%s] with", table, JSON.stringify(params, null, 2));
+		// console.log("Get Batch Items on [%s] with", table, JSON.stringify(params, null, 2));
 
 		var deferred = Q.defer();
 		dynamodb.batchGetItem(params, function(err, data) {
@@ -284,7 +164,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			}
 
 			data.Responses[table].forEach(function(item) {
-				output.push(deitemize(item));
+				output.push(utils.deitemize(item));
 			});
 
 			deferred.resolve(output);
@@ -301,7 +181,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		var item = {};
 		Object.keys(document).forEach(function(key) {
-			item[key] = itemize(document[key]);
+			item[key] = utils.itemize(document[key]);
 		});
 
 		var params = {
@@ -312,7 +192,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Item: item
 		};
 
-		console.log("Will create with ", params);
+		// console.log("Will create with ", params);
 
 		var deferred = Q.defer();
 		dynamodb.putItem(params, function(err, data) {
@@ -322,7 +202,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 				deferred.reject(err);
 			}
 
-			console.log("CREATED");
 			deferred.resolve(document);
 
 		});
@@ -343,7 +222,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			var action;
 			if (document[key]) {
 				items[key] = {
-					Value: itemize(document[key]),
+					Value: utils.itemize(document[key]),
 					Action: "PUT"
 				};
 			} else {
@@ -359,13 +238,13 @@ module.exports = function(awsconfig, dynamodboptions) {
 			ReturnItemCollectionMetrics: "SIZE",
 			ReturnValues: "ALL_NEW",
 			Key: {
-				"id": itemize(document.id)
+				"id": utils.itemize(document.id)
 			},
 			AttributeUpdates: items,
 			TableName: table,
 		};
 
-		console.log("Will update with ", JSON.stringify(params, null, 2));
+		//console.log("Will update with ", JSON.stringify(params, null, 2));
 
 		var deferred = Q.defer();
 		dynamodb.updateItem(params, function(err, data) {
@@ -375,9 +254,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 				deferred.reject(err);
 			}
 
-			console.log("UPDATED");
 			deferred.resolve(document);
-
 
 		});
 
@@ -389,7 +266,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		var key = {};
 		Object.keys(document).forEach(function(k) {
-			key[k] = itemize(document[k]);
+			key[k] = utils.itemize(document[k]);
 		});
 
 		var params = {
@@ -397,7 +274,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Key: key
 		};
 
-		console.log("Delete item in %s with ", table, params);
+		// console.log("Delete item in %s with ", table, params);
 
 		var deferred = Q.defer();
 		dynamodb.deleteItem(params, function(err, data) {
@@ -407,7 +284,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 				deferred.reject(err);
 			}
 
-			console.log("DELETED");
 			deferred.resolve();
 
 		});
