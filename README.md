@@ -50,7 +50,7 @@ An id will be automatically generated using shorId
 
 ```javascript
 
-  return database.query("Users", [{
+  database.query("Users", [{
     key: "email",
     operator: "EQ",
     value: email
