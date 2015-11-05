@@ -264,14 +264,9 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var remove = function(table, document) {
 
-		var key = {};
-		Object.keys(document).forEach(function(k) {
-			key[k] = utils.itemize(document[k]);
-		});
-
 		var params = {
 			TableName: table,
-			Key: key
+			Key: {id: utils.itemize(document)}
 		};
 
 		// console.log("Delete item in %s with ", table, params);
