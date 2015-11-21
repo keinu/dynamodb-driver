@@ -1,6 +1,7 @@
 var AWS = require('aws-sdk'),
-	Q = require("q"),
+	Promise = require("bluebird"),
 	shortid = require('shortid');
+
 
 var utils = require("./utils");
 
@@ -8,7 +9,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	AWS.config.update(awsconfig);
 
-	var dynamodb = new AWS.DynamoDB(dynamodboptions);
+	var dynamodb = new Promise.promisifyAll(new AWS.DynamoDB(dynamodboptions));
 
 	var query = function(table, conditions, index) {
 
@@ -34,24 +35,18 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		params.KeyConditions = keys;
 
-		var deferred = Q.defer();
-		dynamodb.query(params, function(err, data) {
+		return dynamodb.queryAsync(params).then(function(data) {
 
-			if (err) {
-				console.log(err, err.stack);
-				return deferred.reject(err);
-			}
+			//console.log(JSON.stringify(data, null, 2));
 
 			var items = [];
 			data.Items.forEach(function(item) {
 				items.push(utils.deitemize(item));
 			});
 
-			deferred.resolve(items);
+			return items;
 
 		});
-
-		return deferred.promise;
 
 	};
 
@@ -75,24 +70,16 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		params.ScanFilter = keys;
 
-		var deferred = Q.defer();
-		dynamodb.scan(params, function(err, data) {
-
-			if (err) {
-				console.log(err, err.stack);
-				deferred.reject(err);
-			}
+		return dynamodb.scanAsync(params).then(function(data) {
 
 			var items = [];
 			data.Items.forEach(function(item) {
 				items.push(utils.deitemize(item));
 			});
 
-			deferred.resolve(items);
+			return items;
 
 		});
-
-		return deferred.promise;
 
 	};
 
@@ -107,23 +94,11 @@ module.exports = function(awsconfig, dynamodboptions) {
 			}
 		};
 
-		var deferred = Q.defer();
-		dynamodb.getItem(params, function(err, data) {
+		return dynamodb.getItemAsync(params).then(function(data) {
 
-			if (err) {
-				console.log(err, err.stack);
-				deferred.reject(err);
-			}
-
-
-			// console.log("DATA", data);
-
-			var output = utils.deitemize(data.Item);
-			deferred.resolve(output);
+			return utils.deitemize(data.Item);
 
 		});
-
-		return deferred.promise;
 
 	};
 
@@ -150,28 +125,20 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		// console.log("Get Batch Items on [%s] with", table, JSON.stringify(params, null, 2));
 
-		var deferred = Q.defer();
-		dynamodb.batchGetItem(params, function(err, data) {
-
-			if (err) {
-				console.log(err, err.stack);
-				deferred.reject(err);
-			}
+		return dynamodb.batchGetItemAsync(params).then(function(data) {
 
 			var output = [];
 			if (!data.Responses) {
-				deferred.resolve(output);
+				return output;
 			}
 
 			data.Responses[table].forEach(function(item) {
 				output.push(utils.deitemize(item));
 			});
 
-			deferred.resolve(output);
+			return output;
 
 		});
-
-		return deferred.promise;
 
 	};
 
@@ -194,19 +161,11 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		// console.log("Will create with ", params);
 
-		var deferred = Q.defer();
-		dynamodb.putItem(params, function(err, data) {
+		return dynamodb.putItemAsync(params).then(function(data) {
 
-			if (err) {
-				console.log(err, err.stack);
-				deferred.reject(err);
-			}
-
-			deferred.resolve(document);
+			return document;
 
 		});
-
-		return deferred.promise;
 
 	};
 
@@ -246,19 +205,11 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		//console.log("Will update with ", JSON.stringify(params, null, 2));
 
-		var deferred = Q.defer();
-		dynamodb.updateItem(params, function(err, data) {
+		return dynamodb.updateItemAsync(params).then(function(data) {
 
-			if (err) {
-				console.log(err, err.stack);
-				deferred.reject(err);
-			}
-
-			deferred.resolve(document);
+			return document;
 
 		});
-
-		return deferred.promise;
 
 	};
 
@@ -274,19 +225,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Key: key
 		};
 
-		var deferred = Q.defer();
-		dynamodb.deleteItem(params, function(err, data) {
-
-			if (err) {
-				console.log(err, err.stack);
-				deferred.reject(err);
-			}
-
-			deferred.resolve();
-
-		});
-
-		return deferred.promise;
+		return dynamodb.deleteItemAsync(params);
 
 	};
 

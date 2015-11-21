@@ -1,6 +1,6 @@
 {
   "name": "node-simple-dynamo",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Simple AWS DynamoDB driver for nodejs",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,13 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.2.11",
-    "q": "^1.4.1",
+    "bluebird": "^3.0.5",
     "shortid": "^2.2.4"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "chai-as-promised": "^5.1.0",
+    "mocha": "^2.3.4",
+    "mock-aws": "^1.2.2"
   }
 }

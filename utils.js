@@ -66,6 +66,10 @@ module.exports = (function() {
 			return item.S;
 		}
 
+		if (item.N) {
+			return item.N;
+		}
+
 		if (item.SS) {
 			return item.SS;
 		}
