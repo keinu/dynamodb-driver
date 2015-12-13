@@ -6,6 +6,10 @@ module.exports = (function() {
 
 			return {"NULL" : true};
 
+		} else if (typeof param === "boolean") {
+
+			return {"BOOL" : param};
+
 		} else if (!isNaN(param)) {
 
 			return {"N" : "" + param};
@@ -17,10 +21,6 @@ module.exports = (function() {
 			} else {
 				return {"S" : param};
 			}
-
-		} else if (typeof param === "boolean") {
-
-			return {"BOOL" : param};
 
 		} else if (Array.isArray(param) && param.length > 0) {
 
