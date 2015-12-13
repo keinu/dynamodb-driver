@@ -33,7 +33,7 @@ describe("SignatureService", function() {
 			AWS.mock('DynamoDB', 'query', { Items: [
 				{
 					id: {"S": "string"},
-					number: {"N": 1234}
+					number: {"N": "1234"}
 				}
      		]});
 
@@ -65,7 +65,7 @@ describe("SignatureService", function() {
 			AWS.mock('DynamoDB', 'scan', { Items: [
 				{
 					id: {"S": "string"},
-					number: {"N": 1234}
+					number: {"N": "1234"}
 				}
      		]});
 
@@ -97,7 +97,7 @@ describe("SignatureService", function() {
 			AWS.mock('DynamoDB', 'getItem', { Item:
 				{
 					id: {"S": "string"},
-					number: {"N": 1234}
+					number: {"N": "1234"}
 				}
 			});
 
@@ -147,7 +147,7 @@ describe("SignatureService", function() {
 
 		});
 
-		it("Should execture a raound trip deitemize - itemize", function() {
+		it("Should execute a round trip with deitemize - itemize", function() {
 
 			var original = {
 			  "M": {
@@ -155,15 +155,15 @@ describe("SignatureService", function() {
 			      "S": "string"
 			    },
 			    "number": {
-			      "N": 1234
+			      "N": "1234"
 			    },
 			    "arrayOfNumbers": {
 			      "NS": [
-			        1,
-			        2,
-			        3,
-			        4,
-			        5
+			        "1",
+			        "2",
+			        "3",
+			        "4",
+			        "5"
 			      ]
 			    },
 			    "arrayofStrings": {
@@ -193,15 +193,15 @@ describe("SignatureService", function() {
 			              "S": "string"
 			            },
 			            "number": {
-			              "N": 1234
+			              "N": "1234"
 			            },
 			            "arrayOfNumbers": {
 			              "NS": [
-			                1,
-			                2,
-			                3,
-			                4,
-			                5
+			                "1",
+			                "2",
+			                "3",
+			                "4",
+			                "5"
 			              ]
 			            },
 			            "arrayofStrings": {

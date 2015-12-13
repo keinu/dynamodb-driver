@@ -6,6 +6,10 @@ module.exports = (function() {
 
 			return {"NULL" : true};
 
+		} else if (!isNaN(param)) {
+
+			return {"N" : "" + param};
+
 		} else if (typeof param === "string") {
 
 			if (param === "") {
@@ -18,23 +22,19 @@ module.exports = (function() {
 
 			return {"BOOL" : param};
 
-		} else if (typeof param === "number") {
-
-			return {"N" : param};
-
 		} else if (Array.isArray(param) && param.length > 0) {
 
 			if (typeof param[0] === "string") {
 
 				return {"SS" : param};
 
-			} else if (typeof param[0] === "number") {
+			} else if (!isNaN(param[0])) {
 
-				return {"NS" : param};
+				return {"NS" : param.map(function(n) {return "" + n; })};
 
 			} else {
 
-				return {"L": param.map(function(value) {
+				return {"L" : param.map(function(value) {
 					return itemize(value);
 				})};
 
@@ -49,7 +49,7 @@ module.exports = (function() {
 				}
 			}
 
-			return {"M": object};
+			return {"M" : object};
 
 		}
 
@@ -67,7 +67,7 @@ module.exports = (function() {
 		}
 
 		if (item.N) {
-			return item.N;
+			return +item.N;
 		}
 
 		if (item.SS) {
@@ -75,7 +75,7 @@ module.exports = (function() {
 		}
 
 		if (item.NS) {
-			return item.NS;
+			return item.NS.map(function(n) {return +n; });
 		}
 
 		if (typeof item.BOOL !== "undefined") {
