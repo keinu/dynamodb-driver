@@ -122,6 +122,7 @@ describe("SignatureService", function() {
 		it("Should execture a raound trip itemize - deitemize", function() {
 
 			var original = {
+				"null-value": null,
 				string: "string",
 				number: 1234,
 				arrayOfNumbers: [1,2,3,4,5],
@@ -151,6 +152,9 @@ describe("SignatureService", function() {
 
 			var original = {
 			  "M": {
+			  	"null-value": {
+			  		"NULL": true
+			  	},
 			    "string": {
 			      "S": "string"
 			    },

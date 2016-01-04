@@ -10,10 +10,6 @@ module.exports = (function() {
 
 			return {"BOOL" : param};
 
-		} else if (!isNaN(param)) {
-
-			return {"N" : "" + param};
-
 		} else if (typeof param === "string") {
 
 			if (param === "") {
@@ -21,6 +17,10 @@ module.exports = (function() {
 			} else {
 				return {"S" : param};
 			}
+
+		} else if (!isNaN(param)) {
+
+			return {"N" : "" + param};
 
 		} else if (Array.isArray(param) && param.length > 0) {
 
@@ -82,7 +82,7 @@ module.exports = (function() {
 			return (item.BOOL) ? true : false;
 		}
 
-		if (item.NULL) {
+		if (item.NULL === true) {
 			return null;
 		}
 
