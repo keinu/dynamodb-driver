@@ -11,7 +11,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var dynamodb = new Promise.promisifyAll(new AWS.DynamoDB(dynamodboptions));
 
-	var query = function(table, conditions, index) {
+	var query = function(table, conditions, index, options) {
 
 		var params = {
 			TableName: table
@@ -31,13 +31,13 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		});
 
-		// console.log("Query %s with index [%s] with ", table, index, JSON.stringify(keys, null, 2));
+		if (options && options.reverse) {
+			params.ScanIndexForward = false;
+		}
 
 		params.KeyConditions = keys;
 
 		return dynamodb.queryAsync(params).then(function(data) {
-
-			//console.log(JSON.stringify(data, null, 2));
 
 			var items = [];
 			data.Items.forEach(function(item) {
