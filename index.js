@@ -36,7 +36,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 		}
 
 		if (options && options.limit) {
-			params.Limit = limit;
+			params.Limit = options.limit;
 		}
 
 		if (options && options.filter) {
