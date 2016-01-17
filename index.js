@@ -35,6 +35,26 @@ module.exports = function(awsconfig, dynamodboptions) {
 			params.ScanIndexForward = false;
 		}
 
+		if (options && options.limit) {
+			params.Limit = limit;
+		}
+
+		if (options && options.filter) {
+
+			var queryFilter = {};
+
+			options.filter.forEach(function(condition) {
+
+				queryFilter[condition.key] = {
+					ComparisonOperator: condition.operator,
+					AttributeValueList: [utils.itemize(condition.value)],
+				};
+
+			});
+
+			params.QueryFilter = queryFilter;
+		}
+
 		params.KeyConditions = keys;
 
 		return dynamodb.queryAsync(params).then(function(data) {
