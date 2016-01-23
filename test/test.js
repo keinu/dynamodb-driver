@@ -9,7 +9,7 @@ var should = chai.should(),
 
 var AWS = require('mock-aws');
 
-describe("SignatureService", function() {
+describe("Node simple dynamo", function() {
 
     describe("Service invokation", function() {
 

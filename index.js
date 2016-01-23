@@ -21,15 +21,43 @@ module.exports = function(awsconfig, dynamodboptions) {
 			params.IndexName = index;
 		}
 
-		var keys = {};
-		conditions.forEach(function(condition) {
+		// Legacy KeyConditions are in use
+		if (conditions.constructor === Array) {
 
-			keys[condition.key] = {
-				ComparisonOperator: condition.operator,
-				AttributeValueList: [utils.itemize(condition.value)],
-			};
+			var keys = {};
+			conditions.forEach(function(condition) {
 
-		});
+				keys[condition.key] = {
+					ComparisonOperator: condition.operator,
+					AttributeValueList: [utils.itemize(condition.value)],
+				};
+
+			});
+
+			params.KeyConditions = keys;
+
+		}
+
+		// KeyConditionExpression are in use
+		if (conditions.constructor === Object) {
+
+			params.KeyConditionExpression = conditions.KeyConditionExpression;
+			params.ExpressionAttributeNames = conditions.ExpressionAttributeNames;
+
+			var ExpressionAttributeValues = {};
+
+			var values = conditions.ExpressionAttributeValues;
+
+			for (var p in values) {
+				if (!values.hasOwnProperty(p)) {
+					continue;
+				}
+				ExpressionAttributeValues[p] = utils.itemize(values[p]);
+			}
+
+			params.ExpressionAttributeValues = ExpressionAttributeValues;
+
+		}
 
 		if (options && options.reverse) {
 			params.ScanIndexForward = false;
@@ -53,9 +81,8 @@ module.exports = function(awsconfig, dynamodboptions) {
 			});
 
 			params.QueryFilter = queryFilter;
-		}
 
-		params.KeyConditions = keys;
+		}
 
 		return dynamodb.queryAsync(params).then(function(data) {
 
@@ -63,7 +90,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 			data.Items.forEach(function(item) {
 				items.push(utils.deitemize(item));
 			});
-
 			return items;
 
 		});
@@ -85,8 +111,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 			};
 
 		});
-
-		// console.log("Scan %s with", table, JSON.stringify(keys, null, 2));
 
 		params.ScanFilter = keys;
 
@@ -129,21 +153,16 @@ module.exports = function(awsconfig, dynamodboptions) {
 			RequestItems: {}
 		};
 
-		var keys = [];
-		ids.forEach(function(id) {
-
-			keys.push({
+		var keys = ids.map(function(id) {
+			return {
 				"id": utils.itemize(id)
-			});
-
+			};
 		});
 
 		params.RequestItems[table] = {
 			ConsistentRead: true,
 			Keys: keys
 		};
-
-		// console.log("Get Batch Items on [%s] with", table, JSON.stringify(params, null, 2));
 
 		return dynamodb.batchGetItemAsync(params).then(function(data) {
 
@@ -162,7 +181,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
-	var create = function(table, document) {
+	var create = function(table, document, conditions) {
 
 		document.id = shortid.generate();
 
@@ -179,7 +198,31 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Item: item
 		};
 
-		// console.log("Will create with ", params);
+		// KeyConditionExpression are in use
+		if (conditions && conditions.constructor === Object) {
+
+			params.ConditionExpression = conditions.ConditionExpression;
+
+			if (conditions.ExpressionAttributeNames) {
+				params.ExpressionAttributeNames = conditions.ExpressionAttributeNames;
+			}
+
+			var ExpressionAttributeValues = {};
+
+			var values = conditions.ExpressionAttributeValues;
+
+			for (var p in values) {
+				if (!values.hasOwnProperty(p)) {
+					continue;
+				}
+				ExpressionAttributeValues[p] = utils.itemize(values[p]);
+			}
+
+			params.ExpressionAttributeValues = ExpressionAttributeValues;
+
+		}
+
+		console.log(params);
 
 		return dynamodb.putItemAsync(params).then(function(data) {
 
@@ -198,7 +241,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 				return;
 			}
 
-			var action;
 			if (document[key]) {
 				items[key] = {
 					Value: utils.itemize(document[key]),
@@ -223,9 +265,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			TableName: table,
 		};
 
-		//console.log("Will update with ", JSON.stringify(params, null, 2));
-
-		return dynamodb.updateItemAsync(params).then(function(data) {
+		return dynamodb.updateItemAsync(params).then(function() {
 
 			return document;
 
