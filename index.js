@@ -232,6 +232,39 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
+	var createItems = function(table, documents) {
+
+		var params = {
+			RequestItems: {}
+		};
+
+		params.RequestItems[table] = [];
+
+		documents.forEach(function(document) {
+
+			document.id = shortid.generate();
+
+			var item = {};
+			Object.keys(document).forEach(function(key) {
+				item[key] = utils.itemize(document[key]);
+			});
+
+			params.RequestItems[table].push({
+				PutRequest: {
+					Item: item
+				}
+			});
+
+		});
+
+		return dynamodb.batchWriteAsync(params).then(function(data) {
+
+			return documents;
+
+		});
+
+	};
+
 	var update = function(table, document) {
 
 		var items = {};
@@ -295,6 +328,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 		get: get,
 		getItems: getItems,
 		create: create,
+		createItems: createItems,
 		update: update,
 		remove: remove,
 	};
