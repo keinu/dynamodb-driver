@@ -234,31 +234,59 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var createItems = function(table, documents) {
 
-		var params = {
-			RequestItems: {}
+		var maxWriteItems = 25; // Currently 25 on AWS
+
+		// Returns a promise of the wripte operation
+		var getWriteOperation = function(documentsToWrite) {
+
+			// Constructs the request
+			var params = {
+				RequestItems: {}
+			};
+
+			params.RequestItems[table] = [];
+
+			documentsToWrite.forEach(function(document) {
+
+				// Dop not generate id if already present
+				if (!document.id) {
+					document.id = shortid.generate();
+				}
+
+				var item = {};
+				Object.keys(document).forEach(function(key) {
+					item[key] = utils.itemize(document[key]);
+				});
+
+				params.RequestItems[table].push({
+					PutRequest: {
+						Item: item
+					}
+				});
+
+			});
+
+			// Sends the request
+			return dynamodb.batchWriteItemAsync(params);
+
 		};
 
-		params.RequestItems[table] = [];
+		var writeRequests = [];
 
-		documents.forEach(function(document) {
+		while (documents.length) {
 
-			document.id = shortid.generate();
+			var documentsToWrite = documents.splice(0, maxWriteItems);
 
-			var item = {};
-			Object.keys(document).forEach(function(key) {
-				item[key] = utils.itemize(document[key]);
-			});
+			var writeOperation = getWriteOperation(documentsToWrite);
 
-			params.RequestItems[table].push({
-				PutRequest: {
-					Item: item
-				}
-			});
+			writeRequests.push(writeOperation);
 
-		});
+		}
 
-		return dynamodb.batchWriteAsync(params).then(function(data) {
+		// Wait for all promisses to be fullfilled
+		return Promise.all(writeRequests).then(function() {
 
+			// Return documents
 			return documents;
 
 		});
