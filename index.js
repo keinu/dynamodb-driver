@@ -222,8 +222,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		console.log(params);
-
 		return dynamodb.putItemAsync(params).then(function(data) {
 
 			return document;
