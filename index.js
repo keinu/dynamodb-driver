@@ -149,7 +149,15 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var getItems = function(table, ids) {
 
-		var params = {
+		if (ids.constructor !== Array) {
+			throw Error("ids is not an Array");
+		}
+
+		if (ids.length === 0) {
+			return Promise.resolve([]);
+		}
+
+ 		var params = {
 			RequestItems: {}
 		};
 
