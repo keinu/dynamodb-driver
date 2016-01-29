@@ -6,19 +6,19 @@ module.exports = (function() {
 
 			return {"NULL" : true};
 
+		} else if (param === "") {
+
+			return {"NULL" : true};
+
 		} else if (typeof param === "boolean") {
 
 			return {"BOOL" : param};
 
 		} else if (typeof param === "string") {
 
-			if (param === "") {
-				return {"NULL" : true};
-			} else {
-				return {"S" : param};
-			}
+			return {"S" : param};
 
-		} else if (!isNaN(param)) {
+		} else if (!isNaN(param) && !Array.isArray(param)) {
 
 			return {"N" : "" + param};
 
@@ -40,12 +40,19 @@ module.exports = (function() {
 
 			}
 
+		} else if (Array.isArray(param) && param.length === 0) {
+
+			return false;
+
 		} else {
 
 			var object = {};
 			for (var key in param) {
 				if (param.hasOwnProperty(key)) {
-					object[key] = itemize(param[key]);
+					var value = itemize(param[key]);
+					if (value !== false) {
+						object[key] = value;
+					}
 				}
 			}
 

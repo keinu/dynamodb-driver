@@ -2,7 +2,6 @@ var AWS = require('aws-sdk'),
 	Promise = require("bluebird"),
 	shortid = require('shortid');
 
-
 var utils = require("./utils");
 
 module.exports = function(awsconfig, dynamodboptions) {
@@ -145,7 +144,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 		});
 
 	};
-
 
 	var getItems = function(table, ids) {
 
@@ -308,17 +306,13 @@ module.exports = function(awsconfig, dynamodboptions) {
 				return;
 			}
 
-			if (document[key]) {
+			var value = utils.itemize(document[key]);
+			if (value !== false) {
 				items[key] = {
-					Value: utils.itemize(document[key]),
+					Value: value,
 					Action: "PUT"
 				};
-			} else {
-				items[key] = {
-					Action: "DELETE"
-				};
 			}
-
 		});
 
 		var params = {
