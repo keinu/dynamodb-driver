@@ -191,7 +191,9 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var create = function(table, document, conditions) {
 
-		document.id = shortid.generate();
+		if (!document.id) {
+			document.id = shortid.generate();
+		}
 
 		var item = {};
 		Object.keys(document).forEach(function(key) {
