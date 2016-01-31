@@ -21,10 +21,10 @@
     "shortid": "^2.2.4"
   },
   "devDependencies": {
+    "aws-sdk": "^2.2.26",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
-    "mocha": "^2.3.4",
-    "mock-aws": "^1.2.2",
-    "aws-sdk": "^2.2.26"
+    "mocha": "^2.4.5",
+    "mock-aws": "^1.2.2"
   }
 }
