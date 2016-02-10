@@ -18,6 +18,10 @@ module.exports = (function() {
 
 			return {"S" : param};
 
+		} else if (param instanceof Date) {
+
+			return {"S" : "" + param};
+
 		} else if (!isNaN(param) && !Array.isArray(param)) {
 
 			return {"N" : "" + param};

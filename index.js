@@ -145,7 +145,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
-	var getItems = function(table, ids) {
+	var getItems = function(table, ids, options) {
 
 		if (ids.constructor !== Array) {
 			throw Error("ids is not an Array");
@@ -165,8 +165,13 @@ module.exports = function(awsconfig, dynamodboptions) {
 			};
 		});
 
+		var consistendRead = false;
+		if (options && options.consistentRead) {
+			params.consistentRead = true;
+		}
+
 		params.RequestItems[table] = {
-			ConsistentRead: true,
+			ConsistentRead: params.consistentRead,
 			Keys: keys
 		};
 
