@@ -306,20 +306,21 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var update = function(table, document, conditions) {
 
-		var items = {};
+		var ExpressionAttributeNames = {};
+		var ExpressionAttributeValues = {};
+		var UpdateExpressions = [];
+
 		Object.keys(document).forEach(function(key) {
 
 			if (key === "id") {
 				return;
 			}
 
-			var value = utils.itemize(document[key]);
-			if (value !== false) {
-				items[key] = {
-					Value: value,
-					Action: "PUT"
-				};
-			}
+			ExpressionAttributeNames["#" + key] = key;
+			ExpressionAttributeValues[":" + key] = utils.itemize(document[key]);
+
+			UpdateExpressions.push("#" + key + " = " + ":" + key);
+
 		});
 
 		var params = {
@@ -329,34 +330,25 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Key: {
 				"id": utils.itemize(document.id)
 			},
-			AttributeUpdates: items,
+			ExpressionAttributeNames: ExpressionAttributeNames,
+			ExpressionAttributeValues: ExpressionAttributeValues,
+			UpdateExpression: "SET " + UpdateExpressions.join(", "),
 			TableName: table,
 		};
 
-
-		// KeyConditionExpression are in use
 		if (conditions && conditions.constructor === Object) {
 
 			params.ConditionExpression = conditions.ConditionExpression;
 
-			if (conditions.ExpressionAttributeNames) {
-				params.ExpressionAttributeNames = conditions.ExpressionAttributeNames;
-			}
-
-			var ExpressionAttributeValues = {};
-
+			// Append condition values to ExpressionAttributeValues
 			var values = conditions.ExpressionAttributeValues;
-
-			for (var p in values) {
-				if (!values.hasOwnProperty(p)) {
-					continue;
-				}
-				ExpressionAttributeValues[p] = utils.itemize(values[p]);
-			}
-
-			params.ExpressionAttributeValues = ExpressionAttributeValues;
+			Object.keys(values).forEach(function(key) {
+				params.ExpressionAttributeValues[key] = utils.itemize(values[key]);
+			});
 
 		}
+
+//		console.log(JSON.stringify(params, null, 2));
 
 		return dynamodb.updateItemAsync(params).then(function() {
 
