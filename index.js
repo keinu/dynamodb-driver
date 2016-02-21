@@ -304,7 +304,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
-	var update = function(table, document) {
+	var update = function(table, document, conditions) {
 
 		var items = {};
 		Object.keys(document).forEach(function(key) {
@@ -332,6 +332,31 @@ module.exports = function(awsconfig, dynamodboptions) {
 			AttributeUpdates: items,
 			TableName: table,
 		};
+
+
+		// KeyConditionExpression are in use
+		if (conditions && conditions.constructor === Object) {
+
+			params.ConditionExpression = conditions.ConditionExpression;
+
+			if (conditions.ExpressionAttributeNames) {
+				params.ExpressionAttributeNames = conditions.ExpressionAttributeNames;
+			}
+
+			var ExpressionAttributeValues = {};
+
+			var values = conditions.ExpressionAttributeValues;
+
+			for (var p in values) {
+				if (!values.hasOwnProperty(p)) {
+					continue;
+				}
+				ExpressionAttributeValues[p] = utils.itemize(values[p]);
+			}
+
+			params.ExpressionAttributeValues = ExpressionAttributeValues;
+
+		}
 
 		return dynamodb.updateItemAsync(params).then(function() {
 
