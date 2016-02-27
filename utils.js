@@ -46,7 +46,7 @@ module.exports = (function() {
 
 		} else if (Array.isArray(param) && param.length === 0) {
 
-			return false;
+			return {"NULL" : true};
 
 		} else {
 
