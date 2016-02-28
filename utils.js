@@ -20,7 +20,7 @@ module.exports = (function() {
 
 		} else if (param instanceof Date) {
 
-			return {"S" : "" + param};
+			return {"S" : param.toString()};
 
 		} else if (!isNaN(param) && !Array.isArray(param)) {
 
@@ -28,7 +28,11 @@ module.exports = (function() {
 
 		} else if (Array.isArray(param) && param.length > 0) {
 
-			if (typeof param[0] === "string") {
+			if (param.length === 1 && param[0] === null) {
+
+				return {"NULL" : true};
+
+			} else if (typeof param[0] === "string") {
 
 				return {"SS" : param};
 
