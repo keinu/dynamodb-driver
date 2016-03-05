@@ -1,6 +1,6 @@
 {
   "name": "node-simple-dynamo",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Simple AWS DynamoDB driver for nodejs",
   "main": "index.js",
   "scripts": {

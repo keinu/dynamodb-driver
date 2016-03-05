@@ -248,7 +248,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 		var maxWriteItems = 25; // Currently 25 on AWS
 
 		// Returns a promise of the wripte operation
-		var getWriteOperation = function(documentsToWrite) {
+		var writeOperation = function(documentsToWrite) {
 
 			// Constructs the request
 			var params = {
@@ -278,29 +278,20 @@ module.exports = function(awsconfig, dynamodboptions) {
 			});
 
 			// Sends the request
+			// console.log("Saving %s items", documentsToWrite.length);
 			return dynamodb.batchWriteItemAsync(params);
 
 		};
 
-		var writeRequests = [];
+		// Contains arrays of $maxWriteItems items to save
+		var documentsToWrite = [];
 
 		while (documents.length) {
-
-			var documentsToWrite = documents.splice(0, maxWriteItems);
-
-			var writeOperation = getWriteOperation(documentsToWrite);
-
-			writeRequests.push(writeOperation);
-
+			documentsToWrite.push(documents.splice(0, maxWriteItems));
 		}
 
-		// Wait for all promisses to be fullfilled
-		return Promise.all(writeRequests).then(function() {
-
-			// Return documents
-			return documents;
-
-		});
+		// Wait for all promisses to be fullfilled one by one
+		return Promise.each(documentsToWrite, writeOperation);
 
 	};
 
@@ -347,8 +338,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 			});
 
 		}
-
-//		console.log(JSON.stringify(params, null, 2));
 
 		return dynamodb.updateItemAsync(params).then(function() {
 
