@@ -278,8 +278,11 @@ module.exports = function(awsconfig, dynamodboptions) {
 			});
 
 			// Sends the request
-			// console.log("Saving %s items", documentsToWrite.length);
-			return dynamodb.batchWriteItemAsync(params);
+			console.log("Saving %s items", documentsToWrite.length);
+			return dynamodb.batchWriteItemAsync(params).catch(function(err) {
+				console.log(err);
+				throw err;
+			});
 
 		};
 
