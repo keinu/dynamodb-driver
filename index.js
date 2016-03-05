@@ -247,16 +247,50 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		var maxWriteItems = 25; // Currently 25 on AWS
 
-		// Returns a promise of the wripte operation
-		var writeOperation = function(documentsToWrite) {
+		// For fibonacci exponetial backoff
+		var previous = 1;
+		var anteprevious = 1;
+
+		var writeItems = function(PutRequests) {
 
 			// Constructs the request
 			var params = {
 				RequestItems: {}
 			};
 
-			params.RequestItems[table] = [];
+			params.RequestItems[table] = PutRequests;
 
+			return dynamodb.batchWriteItemAsync(params).then(function(batchResponse) {
+
+				if (batchResponse.UnprocessedItems[table]) {
+
+					var delay = previous + anteprevious;
+
+					anteprevious = previous;
+					previous = delay;
+
+					console.log("%s unprocessed items", batchResponse.UnprocessedItems[table].length);
+					console.log("Delaying next batch, %d seconds", delay);
+
+					return Promise.delay(delay * 1000).then(function() {
+						return writeItems(batchResponse.UnprocessedItems[table]);
+					});
+
+				}
+
+			}).catch(function(err) {
+
+				console.log(err);
+				throw err;
+
+			});
+
+		};
+
+		// Returns a promise of the wripte operation
+		var writeOperation = function(documentsToWrite) {
+
+			var items = [];
 			documentsToWrite.forEach(function(document) {
 
 				// Dop not generate id if already present
@@ -269,7 +303,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 					item[key] = utils.itemize(document[key]);
 				});
 
-				params.RequestItems[table].push({
+				items.push({
 					PutRequest: {
 						Item: item
 					}
@@ -279,14 +313,8 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			// Sends the request
 			console.log("Saving %s items", documentsToWrite.length);
-			return dynamodb.batchWriteItemAsync(params).then(function(batchResponse) {
 
-				console.log(JSON.stringify(batchResponse, null, 2));
-
-			}).catch(function(err) {
-				console.log(err);
-				throw err;
-			});
+			return writeItems(items);
 
 		};
 
