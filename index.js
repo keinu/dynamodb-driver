@@ -245,6 +245,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var createItems = function(table, documents) {
 
+		if (!documents || documents.length === 0) {
+			return Promise.resolve();
+		}
+
 		var maxWriteItems = 25; // Currently 25 on AWS
 
 		// For fibonacci exponetial backoff
@@ -331,7 +335,16 @@ module.exports = function(awsconfig, dynamodboptions) {
 	};
 
 
-	var removeItems = function(table, documents) {
+	var removeItems = function(table, documents, keys) {
+
+		if (!documents || documents.length === 0) {
+			return Promise.resolve();
+		}
+
+		// By default id will be the key
+		if (!keys) {
+			keys = ["id"];
+		}
 
 		var maxWriteItems = 25; // Currently 25 on AWS
 
@@ -384,7 +397,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 				var item = {};
 				Object.keys(document).forEach(function(key) {
 
-					if (["accountId", "lastModifiedDate"].indexOf(key) > -1) {
+					if (keys.indexOf(key) > -1) {
 						item[key] = utils.itemize(document[key]);
 					}
 
