@@ -243,7 +243,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
-	var createItems = function(table, documents) {
+	var createItems = function(table, items) {
+
+		// Don't touch the original items
+		var documents = items;
 
 		if (!documents || documents.length === 0) {
 			return Promise.resolve();
@@ -334,8 +337,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
+	var removeItems = function(table, items, keys) {
 
-	var removeItems = function(table, documents, keys) {
+		// Don't touch the original items
+		var documents = items;
 
 		if (!documents || documents.length === 0) {
 			return Promise.resolve();
