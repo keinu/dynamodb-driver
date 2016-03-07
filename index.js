@@ -330,6 +330,94 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
+
+	var removeItems = function(table, documents) {
+
+		var maxWriteItems = 25; // Currently 25 on AWS
+
+		// For fibonacci exponetial backoff
+		var previous = 1;
+		var anteprevious = 1;
+
+		var deleteItems = function(PutRequests) {
+
+			// Constructs the request
+			var params = {
+				RequestItems: {}
+			};
+
+			params.RequestItems[table] = PutRequests;
+
+			return dynamodb.batchWriteItemAsync(params).then(function(batchResponse) {
+
+				if (batchResponse.UnprocessedItems[table]) {
+
+					var delay = previous + anteprevious;
+
+					anteprevious = previous;
+					previous = delay;
+
+					console.log("%s unprocessed items", batchResponse.UnprocessedItems[table].length);
+					console.log("Delaying next batch, %d seconds", delay);
+
+					return Promise.delay(delay * 1000).then(function() {
+						return deleteItems(batchResponse.UnprocessedItems[table]);
+					});
+
+				}
+
+			}).catch(function(err) {
+
+				console.log(err);
+				throw err;
+
+			});
+
+		};
+
+		// Returns a promise of the wripte operation
+		var deleteOperation = function(documentsToDelete) {
+
+			var items = [];
+			documentsToDelete.forEach(function(document) {
+
+				var item = {};
+				Object.keys(document).forEach(function(key) {
+
+					if (["accountId", "lastModifiedDate"].indexOf(key) > -1) {
+						item[key] = utils.itemize(document[key]);
+					}
+
+				});
+
+				items.push({
+					DeleteRequest: {
+						Key: item
+					}
+				});
+
+			});
+
+			// Sends the request
+			console.log("Deleting %s items", documentsToDelete.length);
+
+			return deleteItems(items);
+
+		};
+
+		// Contains arrays of $maxWriteItems items to save
+		var documentsToDelete = [];
+
+		while (documents.length) {
+			documentsToDelete.push(documents.splice(0, maxWriteItems));
+		}
+
+		// Wait for all promisses to be fullfilled one by one
+		return Promise.each(documentsToDelete, deleteOperation);
+
+	};
+
+
 	var update = function(table, document, conditions) {
 
 		var ExpressionAttributeNames = {};
@@ -405,6 +493,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 		getItems: getItems,
 		create: create,
 		createItems: createItems,
+		removeItems: removeItems,
 		update: update,
 		remove: remove,
 	};
