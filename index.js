@@ -245,8 +245,8 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var createItems = function(table, items) {
 
-		// Don't touch the original items
-		var documents = items;
+		// Don't touch the original items, work on a copy
+		var documents = items.slice(0);
 
 		if (!documents || documents.length === 0) {
 			return Promise.resolve();
@@ -339,8 +339,8 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	var removeItems = function(table, items, keys) {
 
-		// Don't touch the original items
-		var documents = items;
+		// Don't touch the original items, work on a copy
+		var documents = items.slice(0);
 
 		if (!documents || documents.length === 0) {
 			return Promise.resolve();
