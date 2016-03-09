@@ -436,7 +436,12 @@ module.exports = function(awsconfig, dynamodboptions) {
 	};
 
 
-	var update = function(table, document, conditions) {
+	var update = function(table, document, conditions, keys) {
+
+		// By default id will be the key
+		if (!keys) {
+			keys = ["id"];
+		}
 
 		var ExpressionAttributeNames = {};
 		var ExpressionAttributeValues = {};
@@ -444,7 +449,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		Object.keys(document).forEach(function(key) {
 
-			if (key === "id") {
+			if (keys.indexOf(key) > -1) {
 				return;
 			}
 
