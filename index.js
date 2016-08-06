@@ -454,9 +454,21 @@ module.exports = function(awsconfig, dynamodboptions) {
 			}
 
 			ExpressionAttributeNames["#" + key] = key;
-			ExpressionAttributeValues[":" + key] = utils.itemize(document[key]);
 
-			UpdateExpressions.push("#" + key + " = " + ":" + key);
+			// Look for somthing like this: [!some_value]
+			// This will make sure the value is not update if already set
+			var conditional = /\[\!(.*)\]/g.exec(document[key]);
+			if (conditional) {
+
+				ExpressionAttributeValues[":" + key] = utils.itemize(conditional[1]);
+				UpdateExpressions.push("#" + key + " = " + "if_not_exists(#" + key + ", :" + key + ")");
+
+			} else {
+
+				ExpressionAttributeValues[":" + key] = utils.itemize(document[key]);
+				UpdateExpressions.push("#" + key + " = " + ":" + key);
+
+			}
 
 		});
 
