@@ -460,7 +460,9 @@ module.exports = function(awsconfig, dynamodboptions) {
 			var conditional = /\[\!(.*)\]/g.exec(document[key]);
 			if (conditional) {
 
-				ExpressionAttributeValues[":" + key] = utils.itemize(conditional[1]);
+				var value = isNaN(conditional[1]) ? conditional[1] : +conditional[1];
+
+				ExpressionAttributeValues[":" + key] = utils.itemize(value);
 				UpdateExpressions.push("#" + key + " = " + "if_not_exists(#" + key + ", :" + key + ")");
 
 			} else {
