@@ -472,13 +472,16 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		});
 
+		var Key = {};
+		keys.forEach(function(key) {
+			Key[key] = utils.itemize(document[key]);
+		});
+
 		var params = {
 			ReturnConsumedCapacity: "TOTAL",
 			ReturnItemCollectionMetrics: "SIZE",
 			ReturnValues: "ALL_NEW",
-			Key: {
-				"id": utils.itemize(document.id)
-			},
+			Key: Key,
 			ExpressionAttributeNames: ExpressionAttributeNames,
 			ExpressionAttributeValues: ExpressionAttributeValues,
 			UpdateExpression: "SET " + UpdateExpressions.join(", "),
