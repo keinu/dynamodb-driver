@@ -83,6 +83,40 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
+		if (options && options.paginate) {
+
+			var items = [];
+
+			var paginate = function(lastItem) {
+
+				params.Limit = options.paginate;
+
+				if (lastItem) {
+					params.ExclusiveStartKey = lastItem;
+				}
+
+				return dynamodb.queryAsync(params).then(function(data) {
+
+					data.Items.forEach(function(item) {
+						items.push(utils.deitemize(item));
+					});
+
+					if (data.LastEvaluatedKey) {
+
+						return paginate(data.LastEvaluatedKey);
+
+					}
+
+					return items;
+
+				});
+
+			};
+
+			return paginate();
+
+		}
+
 		return dynamodb.queryAsync(params).then(function(data) {
 
 			var items = [];
