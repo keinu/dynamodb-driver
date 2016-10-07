@@ -6,7 +6,7 @@ Simple Node.js DynamoDB driver to perform basic CRUD operations, it is meant to 
 
 ```
 
-npm i dynamodb-driver
+  npm i dynamodb-driver
 
 ```
 
@@ -14,7 +14,7 @@ npm i dynamodb-driver
 
 ```javascript
 
-  var SimpleDynamo = require("node-simple-dynamo"),
+  var SimpleDynamo = require("dynamodb-driver"),
       table = SimpleDynamo(awsConfigObject, DynamoDbConfigObject);
 
 ```
@@ -51,14 +51,16 @@ Returns a promise resolving a document that has just been created
 
   table.create("Users", {
     firstName: "Marilyn",
-    lastName: "Manson"
+    lastName: "Manson",
+    active: true
   }).then(function(user) {
 
     // user is something like
     {
       id : "S1KtimR6"
       firstName: "Marilyn",
-      lastName: "Manson"
+      lastName: "Manson",
+      active: true
     }
 
   });
@@ -80,7 +82,6 @@ conditions: An object with a ConditionExpression and a ExpressionAttributeValues
 
 keys: Should you table is not using id as primary key, you can specify your primary and sort key here such as ["organisationId", "documentId"]
 
-
 ### Example
 
 ```javascript
@@ -95,6 +96,14 @@ keys: Should you table is not using id as primary key, you can specify your prim
     }
   }).then(function(user) {
 
+    // users would be something like that
+    {
+      id : "S1KtimR6"
+      firstName: "Marilyn",
+      lastName: "Manson",
+      active: true,
+      isPowerUser: true
+    }
   });
 
 ```
@@ -110,13 +119,14 @@ keys: Should you table is not using id as primary key, you can specify your prim
 ```
 
 query:
-- could be an array for the query with the key, ComparisonOperator and AttributeValueList for legacy.
+- could be an array for the query with the key, ComparisonOperator and AttributeValueList for legacy KeyConditions.
 - could be an object with a KeyConditionExpression and ExpressionAttributeNames
 
 ### Example
 
 ```javascript
 
+  // Using the legacy KeyConditions mode
   table.query("Users", [{
     key: "email",
     operator: "EQ",
@@ -131,11 +141,15 @@ query:
     [{
       id: "S1KtimR6",
       firstName: "Marilyn"
-      lasName: "Manson"
+      lasName: "Manson",
+      active: true,
+      isPowerUser: true
     }, {
       id: "Z1et9rR5",
-      firstName: "Xabi"
-      lasName: "Alonso"
+      firstName: "Amaia"
+      lasName: "Albistur",
+      active: true,
+      isPowerUser: false
     }]
 
   });
@@ -143,7 +157,6 @@ query:
 ```
 
 ## Get row by Key
-
 
 ### Usage
 
@@ -162,8 +175,10 @@ query:
     // user is something like that
     {
       id: "Z1et9rR5",
-      firstName: "Xabi"
-      lasName: "Alonso"
+      firstName: "Amaia"
+      lasName: "Albistur",
+      active: true,
+      isPowerUser: false
     }
 
   });
@@ -192,11 +207,15 @@ options: is an optional object with consistentRead attribute. it will apply stro
     [{
       id: "S1KtimR6",
       firstName: "Marilyn"
-      lasName: "Manson"
+      lasName: "Manson",
+      active: true,
+      isPowerUser: true
     }, {
       id: "Z1et9rR5",
-      firstName: "Xabi"
-      lasName: "Alonso"
+      firstName: "Amaia"
+      lasName: "Albistur",
+      active: true,
+      isPowerUser: false
     }]
 
   });
@@ -221,8 +240,10 @@ options: is an optional object with consistentRead attribute. it will apply stro
     // user is
     {
       id: "Z1et9rR5",
-      firstName: "Xabi"
-      lasName: "Alonso"
+      firstName: "Amaia"
+      lasName: "Albistur",
+      active: true,
+      isPowerUser: false
     }
   });
 
@@ -238,28 +259,31 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```
 
-Wil perform a scan operation on the selected table
-
+Will perform a scan operation on the selected table
 
 ### Example
 
 ```javascript
 
   table.list("Users", [{
-    key: "email",
+    key: "isPowerUser",
     operator: "EQ",
-    value: "some@email.com"
+    value: true
   }]).then(function(users) {
 
     // users is an Array of users
     [{
       id: "S1KtimR6",
       firstName: "Marilyn"
-      lasName: "Manson"
+      lasName: "Manson",
+      active: true,
+      isPowerUser: true
     }, {
-      id: "Z1et9rR5",
-      firstName: "Xabi"
-      lasName: "Alonso"
+      id: "X1ttUU45",
+      firstName: "Francis"
+      lasName: "Kuntz",
+      active: true,
+      isPowerUser: true
     }]
 
   });
