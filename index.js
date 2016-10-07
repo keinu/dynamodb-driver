@@ -199,7 +199,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 			};
 		});
 
-		var consistendRead = false;
 		if (options && options.consistentRead) {
 			params.consistentRead = true;
 		}
