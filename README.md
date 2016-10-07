@@ -1,6 +1,6 @@
 # Simple AWS DynamoDB driver for nodejs
 
-Simple nodejs DynamoDB layer to perform basic operations. All methods return a promise using Q.
+Simple Node.js DynamoDB driver to perform basic CRUD operations.
 
 ## Usage
 
