@@ -5,7 +5,9 @@ Simple Node.js DynamoDB driver to perform basic CRUD operations, it is meant to 
 ## Installation
 
 ```
+
 npm i dynamodb-driver
+
 ```
 
 ## Initialisation
@@ -22,8 +24,8 @@ npm i dynamodb-driver
 ```javascript
 
   var table = SimpleDynamo({
-      region: "eu-west-1"
-      // --- your AWS config object if need be (AWS.config.update(awsconfig));
+    region: "eu-west-1"
+    // --- your AWS config object if need be (AWS.config.update(awsconfig));
   }, {
     dynamodb: '2012-08-10'
   });
@@ -83,7 +85,7 @@ keys: Should you table is not using id as primary key, you can specify your prim
 
 ```javascript
 
-  database.update("Users", {
+  table.update("Users", {
     id: "S1KtimR6",
     isPowerUser: true
   }, {
@@ -93,18 +95,17 @@ keys: Should you table is not using id as primary key, you can specify your prim
     }
   }).then(function(user) {
 
-  });;
+  });
 
 ```
 
 ## Query rows
 
-
 ### Usage
 
 ```javascript
 
-  Promise = database.query(tableName, query [, indexName] [, options])
+  Promise = table.query(tableName, query [, indexName] [, options]);
 
 ```
 
@@ -112,13 +113,11 @@ query:
 - could be an array for the query with the key, ComparisonOperator and AttributeValueList for legacy.
 - could be an object with a KeyConditionExpression and ExpressionAttributeNames
 
-
 ### Example
-
 
 ```javascript
 
-  database.query("Users", [{
+  table.query("Users", [{
     key: "email",
     operator: "EQ",
     value: email
@@ -132,12 +131,12 @@ query:
     [{
       id: "S1KtimR6",
       firstName: "Marilyn"
-        lasName: "Manson"
-     }, {
+      lasName: "Manson"
+    }, {
       id: "Z1et9rR5",
       firstName: "Xabi"
-        lasName: "Alonso"
-     }]
+      lasName: "Alonso"
+    }]
 
   });
 
@@ -150,7 +149,7 @@ query:
 
 ```javascript
 
-  Promise = database.get(tableName, id).then(function(user) {
+  Promise = table.get(tableName, id);
 
 ```
 
@@ -158,7 +157,7 @@ query:
 
 ```javascript
 
-  database.get("Users", "Z1et9rR5").then(function(user) {
+  table.get("Users", "Z1et9rR5").then(function(user) {
 
     // user is something like that
     {
@@ -178,7 +177,7 @@ query:
 
 ```javascript
 
-  Promise = database.getItems(tableName, arrayOfIds [, options])
+  Promise = table.getItems(tableName, arrayOfIds [, options]);
 
 ```
 options: is an optional object with consistentRead attribute. it will apply strongly consistent reads instead of the default setting (eventually consistent reads)
@@ -187,18 +186,18 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```javascript
 
-  database.getItems("Users", ["Z1et9rR5", "S1KtimR6"], {consistentRead: true}).then(function(users) {
+  table.getItems("Users", ["Z1et9rR5", "S1KtimR6"], {consistentRead: true}).then(function(users) {
 
-  // users is an Array of users
+    // users is an Array of users
     [{
       id: "S1KtimR6",
       firstName: "Marilyn"
-        lasName: "Manson"
-     }, {
+      lasName: "Manson"
+    }, {
       id: "Z1et9rR5",
       firstName: "Xabi"
-        lasName: "Alonso"
-     }]
+      lasName: "Alonso"
+    }]
 
   });
 
@@ -210,7 +209,7 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```javascript
 
-  Promise = database.remove(tableName, id)
+  Promise = table.remove(tableName, id);
 
 ```
 
@@ -218,12 +217,12 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```javascript
 
-  database.remove("Users", "Z1et9rR5").then(function(user) {
-  // user is
+  table.remove("Users", "Z1et9rR5").then(function(user) {
+    // user is
     {
       id: "Z1et9rR5",
       firstName: "Xabi"
-        lasName: "Alonso"
+      lasName: "Alonso"
     }
   });
 
@@ -235,7 +234,7 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```javascript
 
-  Promise = database.list(tableName, query);
+  Promise = table.list(tableName, query);
 
 ```
 
@@ -246,10 +245,23 @@ Wil perform a scan operation on the selected table
 
 ```javascript
 
-  database.list("Users", [{
+  table.list("Users", [{
     key: "email",
     operator: "EQ",
     value: "some@email.com"
-  }]);
+  }]).then(function(users) {
+
+    // users is an Array of users
+    [{
+      id: "S1KtimR6",
+      firstName: "Marilyn"
+      lasName: "Manson"
+    }, {
+      id: "Z1et9rR5",
+      firstName: "Xabi"
+      lasName: "Alonso"
+    }]
+
+  });
 
 ```
