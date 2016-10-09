@@ -14,8 +14,8 @@ Simple Node.js DynamoDB driver to perform basic CRUD operations, it is meant to 
 
 ```javascript
 
-  var SimpleDynamo = require("dynamodb-driver"),
-      table = SimpleDynamo(awsConfigObject, DynamoDbConfigObject);
+  var DDbDriver = require("dynamodb-driver"),
+      table = DDbDriver(awsConfigObject, DynamoDbConfigObject);
 
 ```
 
@@ -23,7 +23,7 @@ Simple Node.js DynamoDB driver to perform basic CRUD operations, it is meant to 
 
 ```javascript
 
-  var table = SimpleDynamo({
+  var table = DDbDriver({
     region: "eu-west-1"
     // --- your AWS config object if need be (AWS.config.update(awsconfig));
   }, {
