@@ -491,12 +491,31 @@ module.exports = function(awsconfig, dynamodboptions) {
 			// Look for somthing like this: [!some_value]
 			// This will make sure the value is not update if already set
 			var conditional = /\[\!(.*)\]/g.exec(document[key]);
+
+			// Look for somthing like this: [++]
+			// This will increment the value
+			var increment = /\[\+\+\]/g.exec(document[key]);
+
+			// Look for somthing like this: [--]
+			// This will decrement the value
+			var decrement = /\[\-\-\]/g.exec(document[key]);
+
 			if (conditional) {
 
 				var value = isNaN(conditional[1]) ? conditional[1] : +conditional[1];
 
 				ExpressionAttributeValues[":" + key] = utils.itemize(value);
 				UpdateExpressions.push("#" + key + " = " + "if_not_exists(#" + key + ", :" + key + ")");
+
+			} else if (increment) {
+
+				ExpressionAttributeValues[":" + key] = utils.itemize(1);
+				UpdateExpressions.push("#" + key + " = #" + key + " + :" + key);
+
+			} else if (decrement) {
+
+				ExpressionAttributeValues[":" + key] = utils.itemize(1);
+				UpdateExpressions.push("#" + key + " = #" + key + " - :" + key);
 
 			} else {
 

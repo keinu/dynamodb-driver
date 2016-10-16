@@ -82,6 +82,39 @@ conditions: An object with a ConditionExpression and a ExpressionAttributeValues
 
 keys: Should you table is not using id as primary key, you can specify your primary and sort key here such as ["organisationId", "documentId"]
 
+#### Conditional write
+
+Specify a value within brackets with a exclamation mark to perform an update only if the value doesn't exist
+
+```javascript
+{
+  id: "S1KtimR6",
+  creationDate: "[!" + new Date().getTime() + "]"
+}
+```
+
+#### Increment
+
+Specify a value within brackets with ++ to perform an increment by one of the existing value
+
+```javascript
+{
+  id: "S1KtimR6",
+  count: "[++]"
+}
+```
+
+#### Decrement
+
+Specify a value within brackets with -- to perform an decrement by one of the existing value
+
+```javascript
+{
+  id: "S1KtimR6",
+  count: "[--]"
+}
+```
+
 ### Example
 
 ```javascript
@@ -96,7 +129,7 @@ keys: Should you table is not using id as primary key, you can specify your prim
     }
   }).then(function(user) {
 
-    // users would be something like that
+    // user would be something like that
     {
       id : "S1KtimR6"
       firstName: "Marilyn",
@@ -114,7 +147,7 @@ keys: Should you table is not using id as primary key, you can specify your prim
 
 ```javascript
 
-  Promise = table.query(tableName, query [, indexName] [, options]);
+  somePromise = table.query(tableName, query [, indexName] [, options]);
 
 ```
 
@@ -162,7 +195,7 @@ query:
 
 ```javascript
 
-  Promise = table.get(tableName, id);
+  somePromise = table.get(tableName, id);
 
 ```
 
@@ -187,12 +220,11 @@ query:
 
 ## Get multiple rows by Key
 
-
 ### Usage
 
 ```javascript
 
-  Promise = table.getItems(tableName, arrayOfIds [, options]);
+  somePromise = table.getItems(tableName, arrayOfIds [, options]);
 
 ```
 options: is an optional object with consistentRead attribute. it will apply strongly consistent reads instead of the default setting (eventually consistent reads)
@@ -228,7 +260,7 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```javascript
 
-  Promise = table.remove(tableName, id);
+  somePromise = table.remove(tableName, id);
 
 ```
 
@@ -249,13 +281,49 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```
 
+## Delete multiple rows by Key
+
+### Usage
+
+```javascript
+
+  somePromise = table.removeItems(tableName, arrayOfObject [, keys]);
+
+```
+keys: when not using id as a primary, you must specify the HASH and optionally RANGE key
+
+### Example
+
+```javascript
+
+  table.removeItems("Users", [{ id: "S1KtimR6"}, {id : "Z1et9rR5"}]).then(function(users) {
+
+    // users is an Array of users
+    [{
+      id: "S1KtimR6",
+      firstName: "Marilyn"
+      lasName: "Manson",
+      active: true,
+      isPowerUser: true
+    }, {
+      id: "Z1et9rR5",
+      firstName: "Amaia"
+      lasName: "Albistur",
+      active: true,
+      isPowerUser: false
+    }]
+
+  });
+
+```
+
 ## List rows
 
 ### Usage
 
 ```javascript
 
-  Promise = table.list(tableName, query);
+  somePromise = table.list(tableName, query);
 
 ```
 
