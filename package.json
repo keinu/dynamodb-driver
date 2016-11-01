@@ -26,5 +26,16 @@
     "chai-as-promised": "^5.1.0",
     "mocha": "^2.4.5",
     "mock-aws": "^1.2.2"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keinu/dynamodb-driver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/keinu/dynamodb-driver/issues"
+  },
+  "homepage": "https://github.com/keinu/dynamodb-driver#readme"
 }
