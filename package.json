@@ -1,6 +1,6 @@
 {
   "name": "dynamodb-driver",
-  "version": "1.6.10",
+  "version": "1.6.11",
   "description": "Simple AWS DynamoDB driver for Node.js",
   "main": "index.js",
   "scripts": {
