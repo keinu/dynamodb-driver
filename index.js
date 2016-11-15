@@ -155,8 +155,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			var paginate = function(lastItem) {
 
-				var items = [];
-
 				params.Limit = options.paginate;
 
 				if (lastItem) {
