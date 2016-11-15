@@ -287,7 +287,7 @@ options: is an optional object with consistentRead attribute. it will apply stro
 
 ```javascript
 
-  somePromise = table.removeItems(tableName, arrayOfObject [, keys]);
+  somePromise = table.removeItems(tableName, arrayOfObject[, keys]);
 
 ```
 keys: when not using id as a primary, you must specify the HASH and optionally RANGE key
@@ -323,11 +323,16 @@ keys: when not using id as a primary, you must specify the HASH and optionally R
 
 ```javascript
 
-  somePromise = table.list(tableName, query);
+  somePromise = table.list(tableName[, query, options]);
 
 ```
 
 Will perform a scan operation on the selected table
+
+query: A specific query array to filter data against
+options: An object with a paginate property as number.
+        It will recursively fetch batches of paginate value until all data is fetched for this query
+        (note, no exponential backing off)
 
 ### Example
 
@@ -337,9 +342,12 @@ Will perform a scan operation on the selected table
     key: "isPowerUser",
     operator: "EQ",
     value: true
-  }]).then(function(users) {
+  }], {
+    paginate: 10 // Will retieve all data by batches of 10
+  }).then(function(users) {
 
     // users is an Array of users
+
     [{
       id: "S1KtimR6",
       firstName: "Marilyn"
