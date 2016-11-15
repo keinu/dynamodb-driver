@@ -129,13 +129,15 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	};
 
-	var list = function(table, conditions) {
+	var list = function(table, conditions, options) {
 
 		var params = {
 			TableName: table
 		};
 
 		var keys = {};
+
+		conditions = conditions || [];
 		conditions.forEach(function(condition) {
 
 			keys[condition.key] = {
@@ -147,6 +149,42 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		params.ScanFilter = keys;
 
+		if (options && options.paginate) {
+
+			var items = [];
+
+			var paginate = function(lastItem) {
+
+				var items = [];
+
+				params.Limit = options.paginate;
+
+				if (lastItem) {
+					params.ExclusiveStartKey = lastItem;
+				}
+
+				return dynamodb.scanAsync(params).then(function(data) {
+
+					data.Items.forEach(function(item) {
+						items.push(utils.deitemize(item));
+					});
+
+					if (data.LastEvaluatedKey) {
+
+						return paginate(data.LastEvaluatedKey);
+
+					}
+
+					return items;
+
+				});
+
+			};
+
+			return paginate();
+
+		}
+
 		return dynamodb.scanAsync(params).then(function(data) {
 
 			var items = [];
@@ -157,7 +195,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 			return items;
 
 		});
-
 	};
 
 	var get = function(table, id) {
