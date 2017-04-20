@@ -1,5 +1,11 @@
-var AWS = require('aws-sdk'),
-	Promise = require("bluebird"),
+try {
+	var AWSXRay = require("aws-xray-sdk-core");
+	var AWS = AWSXRay.captureAWS(require("aws-sdk"));
+} catch(e) {
+	var AWS = require('aws-sdk');
+}
+
+var Promise = require("bluebird"),
 	shortid = require('shortid');
 
 var utils = require("./utils");
