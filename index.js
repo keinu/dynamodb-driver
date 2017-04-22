@@ -405,9 +405,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			});
 
-			// Sends the request
-			console.log("Saving %s items", documentsToWrite.length);
-
 			return writeItems(items);
 
 		};
@@ -514,9 +511,6 @@ module.exports = function(awsconfig, dynamodboptions) {
 				});
 
 			});
-
-			// Sends the request
-			console.log("Deleting %s items", documentsToDelete.length);
 
 			return deleteItems(items);
 
