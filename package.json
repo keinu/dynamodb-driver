@@ -22,11 +22,11 @@
   },
   "devDependencies": {
     "aws-sdk": "^2.2.26",
-    "aws-xray-sdk-core": "^1.1.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
     "mocha": "^2.4.5",
-    "mock-aws": "^1.2.2"
+    "mock-aws": "^1.2.2",
+    "mock-aws-sinon": "^1.0.6"
   },
   "directories": {
     "test": "test"

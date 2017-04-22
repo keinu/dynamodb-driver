@@ -331,6 +331,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 		// For fibonacci exponetial backoff
 		var previous = 1;
 		var anteprevious = 1;
+		var delay = 0;
+
+		// For reverting the back-off
+		var series = [0];
 
 		var writeItems = function(PutRequests) {
 
@@ -345,7 +349,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 				if (batchResponse.UnprocessedItems[table]) {
 
-					var delay = previous + anteprevious;
+					// Keep the list of delays
+					series.push(delay);
+
+					delay = previous + anteprevious;
 
 					anteprevious = previous;
 					previous = delay;
@@ -357,6 +364,12 @@ module.exports = function(awsconfig, dynamodboptions) {
 						return writeItems(batchResponse.UnprocessedItems[table]);
 					});
 
+				}
+
+				// Revert the back of to the latest position
+				// Not putting the back off to 0 to keep playing nicely
+				if (series.length > 1) {
+					previous = series.pop() || 0;
 				}
 
 			}).catch(function(err) {
@@ -430,6 +443,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 		// For fibonacci exponetial backoff
 		var previous = 1;
 		var anteprevious = 1;
+		var delay = 0;
+
+		// For reverting the back-off
+		var series = [0];
 
 		var deleteItems = function(PutRequests) {
 
@@ -444,7 +461,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 				if (batchResponse.UnprocessedItems[table]) {
 
-					var delay = previous + anteprevious;
+					// Keep the list of delays
+					series.push(delay);
+
+					delay = previous + anteprevious;
 
 					anteprevious = previous;
 					previous = delay;
@@ -458,9 +478,14 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 				}
 
+				// Revert the back of to the latest position
+				// Not putting the back off to 0 to keep playing nicely
+				if (series.length > 1) {
+					previous = series.pop() || 0;
+				}
+
 			}).catch(function(err) {
 
-				console.log(err);
 				throw err;
 
 			});
