@@ -529,7 +529,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 	};
 
 
-	var update = function(table, document, conditions, keys) {
+	var update = function(table, document, conditions, keys, itemsToRemove) {
 
 		// By default id will be the key
 		if (!keys) {
@@ -611,6 +611,12 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Object.keys(values).forEach(function(key) {
 				params.ExpressionAttributeValues[key] = utils.itemize(values[key]);
 			});
+
+		}
+
+		if (itemsToRemove) {
+
+			params.UpdateExpression += " REMOVE " + itemsToRemove.join(", ");
 
 		}
 
