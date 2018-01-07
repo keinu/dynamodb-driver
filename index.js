@@ -272,7 +272,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 					console.log("Delaying next batch, %d seconds", delay);
 
 					return Promise.delay(delay * 1000).then(function() {
-						return getItems(batchResponse.UnprocessedKeys[table]);
+						return getDocuments(batchResponse.UnprocessedKeys[table]);
 					});
 
 				}
