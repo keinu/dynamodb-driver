@@ -12,6 +12,8 @@ var utils = require("./utils");
 
 module.exports = function(awsconfig, dynamodboptions) {
 
+	"use strict";
+
 	AWS.config.update(awsconfig);
 
 	var dynamodb = new Promise.promisifyAll(new AWS.DynamoDB(dynamodboptions));
@@ -226,43 +228,95 @@ module.exports = function(awsconfig, dynamodboptions) {
 			throw Error("ids is not an Array");
 		}
 
-		if (ids.length === 0) {
-			return Promise.resolve([]);
+		// Don't touch the original items, work on a copy
+		var documents = ids.slice(0);
+
+		if (!documents || documents.length === 0) {
+			return Promise.resolve();
 		}
 
- 		var params = {
-			RequestItems: {}
-		};
+		options = options || {};
 
-		var keys = ids.map(function(id) {
-			return {
-				"id": utils.itemize(id)
+		var maxGetItems = 100; // Currently 25 on AWS
+
+		// For fibonacci exponetial backoff
+		var previous = 1;
+		var anteprevious = 1;
+		var delay = 0;
+
+		// For reverting the back-off
+		var series = [0];
+
+		var getDocuments = function(Requests) {
+
+			// Constructs the request
+			var params = {
+				RequestItems: {}
 			};
-		});
 
-		if (options && options.consistentRead) {
-			params.consistentRead = true;
-		}
+			params.RequestItems[table] = Requests;
 
-		params.RequestItems[table] = {
-			ConsistentRead: params.consistentRead,
-			Keys: keys
-		};
+			return dynamodb.batchGetItemAsync(params).then(function(batchResponse) {
 
-		return dynamodb.batchGetItemAsync(params).then(function(data) {
+				if (batchResponse.UnprocessedKeys[table]) {
 
-			var output = [];
-			if (!data.Responses) {
-				return output;
-			}
+					// Keep the list of delays
+					series.push(delay);
 
-			data.Responses[table].forEach(function(item) {
-				output.push(utils.deitemize(item));
+					delay = previous + anteprevious;
+
+					anteprevious = previous;
+					previous = delay;
+
+					console.log("%s unprocessed items", batchResponse.UnprocessedKeys[table].length);
+					console.log("Delaying next batch, %d seconds", delay);
+
+					return Promise.delay(delay * 1000).then(function() {
+						return getItems(batchResponse.UnprocessedKeys[table]);
+					});
+
+				}
+
+				// Revert the back of to the latest position
+				// Not putting the back off to 0 to keep playing nicely
+				if (series.length > 1) {
+					previous = series.pop() || 0;
+				}
+
+			}).catch(function(err) {
+
+				console.log(err);
+				throw err;
+
 			});
 
-			return output;
+		};
 
-		});
+		// Returns a promise of the wripte operation
+		var getOperation = function(documents) {
+
+			var keys = documents.map(function(id) {
+				return {
+					"id": utils.itemize(id)
+				};
+			});
+
+			return getDocuments({
+				ConsistentRead: options.consistentRead || false,
+				Keys: keys
+			});
+
+		};
+
+		// Contains arrays of $maxWriteItems items to save
+		var documentsToGet = [];
+
+		while (documents.length) {
+			documentsToGet.push(documents.splice(0, maxGetItems));
+		}
+
+		// Wait for all promisses to be fullfilled one by one
+		return Promise.each(documentsToGet, getOperation).reduce((a, b) => a.concat(b));
 
 	};
 
