@@ -232,8 +232,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 		var documents = ids.slice(0);
 
 		if (!documents || documents.length === 0) {
-			return Promise.resolve();
+			return Promise.resolve([]);
 		}
+
+		var items = [];
 
 		options = options || {};
 
@@ -257,6 +259,10 @@ module.exports = function(awsconfig, dynamodboptions) {
 			params.RequestItems[table] = Requests;
 
 			return dynamodb.batchGetItemAsync(params).then(function(batchResponse) {
+
+				var docs = batchResponse.Responses[table].map(i => utils.deitemize(i));
+
+				items = items.concat(docs);
 
 				if (batchResponse.UnprocessedKeys[table]) {
 
@@ -316,7 +322,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 		}
 
 		// Wait for all promisses to be fullfilled one by one
-		return Promise.each(documentsToGet, getOperation).reduce((a, b) => a.concat(b));
+		return Promise.each(documentsToGet, getOperation).then(() => items);
 
 	};
 
