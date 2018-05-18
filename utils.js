@@ -22,7 +22,7 @@ module.exports = (function() {
 
 			return {"S" : param.toString()};
 
-		} else if (!isNaN(param) && !Array.isArray(param)) {
+		} else if (typeof param !== 'object' && !Array.isArray(param) && !isNaN(param) ) {
 
 			return {"N" : "" + param};
 
@@ -52,9 +52,9 @@ module.exports = (function() {
 
 			return {"NULL" : true};
 
-		} else {
-
+		} else if (param.prototype) {
 			var object = {};
+
 			for (var key in param) {
 				if (param.hasOwnProperty(key)) {
 					var value = itemize(param[key]);
@@ -65,7 +65,17 @@ module.exports = (function() {
 			}
 
 			return {"M" : object};
+		} else {
+			var object = {};
 
+			for (var key in param) {
+				var value = itemize(param[key]);
+				if (value !== false) {
+					object[key] = value;
+				}
+			}
+
+			return {"M" : object};
 		}
 
 	};
