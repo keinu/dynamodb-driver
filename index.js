@@ -610,15 +610,15 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			// Look for somthing like this: [!some_value]
 			// This will make sure the value is not update if already set
-			var conditional = /\[\!(.*)\]/g.exec(document[key]);
+			var conditional = typeof document[key] === 'string' && /\[\!(.*)\]/g.exec(document[key]);
 
 			// Look for somthing like this: [++]
 			// This will increment the value
-			var increment = /\[\+\+\]/g.exec(document[key]);
+			var increment = typeof document[key] === 'string' && /\[\+\+\]/g.exec(document[key]);
 
 			// Look for somthing like this: [--]
 			// This will decrement the value
-			var decrement = /\[\-\-\]/g.exec(document[key]);
+			var decrement = typeof document[key] === 'string' && /\[\-\-\]/g.exec(document[key]);
 
 			if (conditional) {
 
