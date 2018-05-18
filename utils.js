@@ -1,5 +1,5 @@
 module.exports = (function() {
-
+f
 	var itemize = function(param) {
 
 		if (param === null) {
@@ -36,7 +36,7 @@ module.exports = (function() {
 
 				return {"SS" : param};
 
-			} else if (!isNaN(param[0])) {
+			} else if (typeof param[0] !== 'object' && !isNaN(param[0])) {
 
 				return {"NS" : param.map(function(n) {return "" + n; })};
 
