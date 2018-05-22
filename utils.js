@@ -1,5 +1,5 @@
 module.exports = (function() {
-f
+
 	var itemize = function(param) {
 
 		if (param === null) {

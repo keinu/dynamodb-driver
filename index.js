@@ -301,10 +301,26 @@ module.exports = function(awsconfig, dynamodboptions) {
 		// Returns a promise of the wripte operation
 		var getOperation = function(documents) {
 
-			var keys = documents.map(function(id) {
-				return {
-					"id": utils.itemize(id)
-				};
+			var keys = documents.map(function(document) {
+
+				if (!options.keys) {
+
+					// By default, the parameters are an array of ids
+					return {
+						"id": utils.itemize(document)
+					};
+
+				}
+
+				// options.keys is specified as an array of values for hash or hash & key
+				return options.keys.reduce(function(acc, key) {
+
+					acc[key] = utils.itemize(document[key]);
+
+					return acc;
+
+				}, {});
+
 			});
 
 			return getDocuments({

@@ -7,11 +7,7 @@ var chaiAsPromised = require("chai-as-promised");
 var should = chai.should(),
 	expect = chai.expect;
 
-// var sinon = rquire("sinon");
 var mockAWSSinon = require('mock-aws-sinon');
-
-
-// var AWS = require('mock-aws');
 
 describe("Testing backoff", function() {
 
@@ -102,20 +98,10 @@ describe("Testing backoff", function() {
 						UnprocessedItems: {"test": items.splice(0, (Math.random() * 2 | 0))}
 				});
 
-			// var stub = sinon.stub(object, "method").callsFake(func);
-
-   //      	AWS.mock('DynamoDB', 'batchWriteItem', {
-			// 	UnprocessedItems: {
-			// 		"test": items.splice(0, Math.floor(Math.random() * 11))
-			// 	}
- 		// 	});
 
         	var removeOperation = database.removeItems("test", items).then(function() {
-        		console.log(...arguments);
         		done();
         	});
-
-        	// removeOperation.should.eventually.have.deep.property("UnprocessedItems['test']", 2);
 
 		});
 

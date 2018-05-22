@@ -227,7 +227,12 @@ query:
   somePromise = table.getItems(tableName, arrayOfIds [, options]);
 
 ```
-options: is an optional object with consistentRead attribute. it will apply strongly consistent reads instead of the default setting (eventually consistent reads)
+arrayOfIds:
+An array of ids to retrieve or an array of objects containing the partition and sort key of the items to retrieve
+
+options: is an optional object<br />
+options.consistentRead: true or false, will apply strongly consistent reads instead of the default setting (eventually consistent reads)<br />
+options.keys: an array of 1 or 2 strings defining the partition and sort keys
 
 ### Example
 

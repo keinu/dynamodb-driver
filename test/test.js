@@ -8,6 +8,7 @@ var should = chai.should(),
 	expect = chai.expect;
 
 var AWS = require('mock-aws');
+var utils = require("../utils.js");
 
 describe("Node simple dynamo", function() {
 
@@ -111,6 +112,80 @@ describe("Node simple dynamo", function() {
 			query.should.eventually.have.property("id", "string");
 			query.should.eventually.have.property("number", 1234).notify(done);
 
+		});
+
+	});
+
+	describe("Databse get Items with ids as input", function() {
+
+		let documents = [{
+			id: "123",
+			prop1: "prop1",
+			prop2: "prop2"
+		}];
+
+		before(function() {
+
+			this.timeout(5000);
+			AWS.mock('DynamoDB', 'batchGetItem', {
+				Responses: {
+					"TABLE_NAME": utils.itemize(documents).L
+				},
+				UnprocessedKeys: {
+					"TABLE_NAME": null
+				}
+			});
+
+		});
+
+		it("Should return the correct list", function(done) {
+
+			this.timeout(2000);
+			let ids = [{
+				"partition": "123",
+				"sort": "ABC"
+			}, {
+				"partition": "234",
+				"sort": "DEF"
+			}];
+
+			query = database.getItems("TABLE_NAME", ids, {keys: ["partition", "sort"]});
+			query.should.eventually.be.fullfilled;
+			query.should.eventually.be.deep.equal(documents).notify(done);
+
+		});
+
+	});
+
+	describe("Databse get Items with ids as input", function() {
+
+		let documents = [{
+			id: "123",
+			prop1: "prop1",
+			prop2: "prop2"
+		}];
+
+		before(function() {
+
+			this.timeout(5000);
+			AWS.mock('DynamoDB', 'batchGetItem', {
+				Responses: {
+					"TABLE_NAME": utils.itemize(documents).L
+				},
+				UnprocessedKeys: {
+					"TABLE_NAME": null
+				}
+			});
+
+		});
+
+		it("Should return the correct list", function(done) {
+
+			this.timeout(2000);
+			let ids = ["123", "456"];
+			query = database.getItems("TABLE_NAME", ids, {});
+			query.should.eventually.be.fullfilled;
+			query.should.eventually.be.deep.equal(documents).notify(done);
 		});
 
 	});
