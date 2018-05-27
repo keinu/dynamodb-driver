@@ -52,12 +52,13 @@ module.exports = (function() {
 
 			return {"NULL" : true};
 
-		} else if (param.prototype) {
-			var object = {};
+		} else if (param && param.prototype) {
 
-			for (var key in param) {
+			let object = {};
+
+			for (let key in param) {
 				if (param.hasOwnProperty(key)) {
-					var value = itemize(param[key]);
+					let value = itemize(param[key]);
 					if (value !== false) {
 						object[key] = value;
 					}
@@ -65,11 +66,13 @@ module.exports = (function() {
 			}
 
 			return {"M" : object};
-		} else {
-			var object = {};
 
-			for (var key in param) {
-				var value = itemize(param[key]);
+		} else {
+
+			let object = {};
+
+			for (let key in param) {
+				let value = itemize(param[key]);
 				if (value !== false) {
 					object[key] = value;
 				}
