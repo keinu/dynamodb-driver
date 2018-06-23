@@ -291,6 +291,17 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			}).catch(function(err) {
 
+				if (err.code === "ProvisionedThroughputExceededException") {
+
+					console.log("Provisionned Capacity error when getting items, delaying 15 seconds");
+					return Promise.delay(15 * 1000).then(function() {
+
+						return getDocuments(Requests);
+
+					});
+
+				}
+
 				console.log(err);
 				throw err;
 
@@ -450,6 +461,18 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			}).catch(function(err) {
 
+				if (err.code === "ProvisionedThroughputExceededException") {
+
+					console.log("Provisionned Capacity error when creating items, delaying 15 seconds");
+
+					return Promise.delay(15 * 1000).then(function() {
+
+						return writeItems(PutRequests);
+
+					});
+
+				}
+
 				console.log(err);
 				throw err;
 
@@ -558,6 +581,17 @@ module.exports = function(awsconfig, dynamodboptions) {
 				}
 
 			}).catch(function(err) {
+
+				if (err.code === "ProvisionedThroughputExceededException") {
+
+					console.log("Provisionned Capacity error when deleting, delaying 15 seconds");
+					return Promise.delay(15 * 1000).then(function() {
+
+						return deleteItems(PutRequests);
+
+					});
+
+				}
 
 				throw err;
 
@@ -699,6 +733,21 @@ module.exports = function(awsconfig, dynamodboptions) {
 		return dynamodb.updateItemAsync(params).then(function() {
 
 			return document;
+
+		}).catch(function(err) {
+
+			if (err.code === "ProvisionedThroughputExceededException") {
+
+				console.log("Provisionned Capacity error when updating, delaying 15 seconds");
+				return Promise.delay(15 * 1000).then(function() {
+
+					return update(table, document, conditions, keys, itemsToRemove);
+
+				});
+
+			}
+
+			throw err;
 
 		});
 
