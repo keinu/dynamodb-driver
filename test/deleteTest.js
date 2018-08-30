@@ -12,6 +12,7 @@ var mockAWSSinon = require('mock-aws-sinon');
 describe("Testing backoff", function() {
 
 	this.timeout(50000);
+
     describe("base test", function() {
 
     	SimpleDynamo = require('../index.js');

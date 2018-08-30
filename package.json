@@ -17,16 +17,18 @@
   "author": "Xabi Errotabehere",
   "license": "ISC",
   "dependencies": {
-    "bluebird": "^3.0.5",
+    "aws-sdk": "^2.306.0",
+    "bluebird": "^3.5.1",
     "shortid": "^2.2.4"
   },
   "devDependencies": {
-    "aws-sdk": "^2.2.26",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
-    "mocha": "^2.4.5",
-    "mock-aws": "^1.2.2",
-    "mock-aws-sinon": "^1.0.6"
+    "mocha": "^5.2.0",
+    "mock-aws": "^1.2.3",
+    "mock-aws-sinon": "^1.3.2",
+    "proxyquire": "^2.1.0",
+    "sinon": "^4.1.3"
   },
   "directories": {
     "test": "test"

@@ -1,14 +1,13 @@
-try {
-	var AWSXRay = require("aws-xray-sdk-core");
-	var AWS = AWSXRay.captureAWS(require("aws-sdk"));
-} catch(e) {
-	var AWS = require('aws-sdk');
-}
-
 var Promise = require("bluebird"),
 	shortid = require('shortid');
 
+var AWS = require('aws-sdk');
+	AWS.config.setPromisesDependency(Promise);
+
 var utils = require("./utils");
+
+const __basePath = process.env.PWD;
+global.__basePath = process.env.PWD;
 
 module.exports = function(awsconfig, dynamodboptions) {
 
@@ -16,7 +15,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 	AWS.config.update(awsconfig);
 
-	var dynamodb = new Promise.promisifyAll(new AWS.DynamoDB(dynamodboptions));
+	var dynamodb = new AWS.DynamoDB(dynamodboptions);
 
 	var query = function(table, conditions, index, options) {
 
@@ -103,7 +102,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 					params.ExclusiveStartKey = lastItem;
 				}
 
-				return dynamodb.queryAsync(params).then(function(data) {
+				return dynamodb.query(params).promise().then(function(data) {
 
 					data.Items.forEach(function(item) {
 						items.push(utils.deitemize(item));
@@ -125,7 +124,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		return dynamodb.queryAsync(params).then(function(data) {
+		return dynamodb.query(params).promise().then(function(data) {
 
 			var items = [];
 			data.Items.forEach(function(item) {
@@ -169,7 +168,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 					params.ExclusiveStartKey = lastItem;
 				}
 
-				return dynamodb.scanAsync(params).then(function(data) {
+				return dynamodb.scan(params).promise().then(function(data) {
 
 					data.Items.forEach(function(item) {
 						items.push(utils.deitemize(item));
@@ -191,7 +190,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		return dynamodb.scanAsync(params).then(function(data) {
+		return dynamodb.scan(params).promise().then(function(data) {
 
 			var items = [];
 			data.Items.forEach(function(item) {
@@ -214,7 +213,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			}
 		};
 
-		return dynamodb.getItemAsync(params).then(function(data) {
+		return dynamodb.getItem(params).promise().then(function(data) {
 
 			return utils.deitemize(data.Item);
 
@@ -258,7 +257,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			params.RequestItems[table] = Requests;
 
-			return dynamodb.batchGetItemAsync(params).then(function(batchResponse) {
+			return dynamodb.batchGetItem(params).promise().then(function(batchResponse) {
 
 				var docs = batchResponse.Responses[table].map(i => utils.deitemize(i));
 
@@ -396,7 +395,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		return dynamodb.putItemAsync(params).then(function(data) {
+		return dynamodb.putItem(params).promise().then(function(data) {
 
 			return document;
 
@@ -432,7 +431,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			params.RequestItems[table] = PutRequests;
 
-			return dynamodb.batchWriteItemAsync(params).then(function(batchResponse) {
+			return dynamodb.batchWriteItem(params).promise().then(function(batchResponse) {
 
 				if (batchResponse.UnprocessedItems[table]) {
 
@@ -553,7 +552,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			params.RequestItems[table] = PutRequests;
 
-			return dynamodb.batchWriteItemAsync(params).then(function(batchResponse) {
+			return dynamodb.batchWriteItem(params).promise().then(function(batchResponse) {
 
 				if (batchResponse.UnprocessedItems[table]) {
 
@@ -730,7 +729,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		return dynamodb.updateItemAsync(params).then(function() {
+		return dynamodb.updateItem(params).promise().then(function() {
 
 			return document;
 
@@ -765,7 +764,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			Key: key
 		};
 
-		return dynamodb.deleteItemAsync(params);
+		return dynamodb.deleteItem(params).promise();
 
 	};
 

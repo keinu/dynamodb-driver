@@ -1,18 +1,15 @@
+var Promise = require("bluebird");
+var proxyquire = require("proxyquire");
+
 var chai = require("chai");
-	chai.config.includeStack = true;
-
-var chaiAsPromised = require("chai-as-promised");
-	chai.use(chaiAsPromised);
-
 var should = chai.should(),
 	expect = chai.expect;
 
-var AWS = require('mock-aws');
 var utils = require("../utils.js");
 
 describe("Node simple dynamo", function() {
 
-    describe("Service invokation", function() {
+    describe("Service invocation", function() {
 
     	SimpleDynamo = require('../index.js');
 		database = new SimpleDynamo({}, {
@@ -28,31 +25,47 @@ describe("Node simple dynamo", function() {
 
     describe("Database Query", function() {
 
+    	var ddbriver;
+
 		before(function() {
+			ddbriver = proxyquire(__basePath + "/index.js", {
+				"aws-sdk": {
+					DynamoDB: function() {
+						return {
+							query: function(params) {
 
-			this.timeout(5000);
-			AWS.mock('DynamoDB', 'query', { Items: [
-				{
-					id: {"S": "string"},
-					number: {"N": "1234"}
+								return {
+									promise: () => Promise.resolve({ Items: [{
+										id: {"S": "string"},
+										number: {"N": "1234"}
+									}]})
+								};
+
+							}
+						};
+					}
 				}
-     		]});
-
-
+			});
 		});
 
-		it("should return a correct query object", function(done) {
+		it("should return a correct query object", function() {
 
-			query = database.query("ContainerUser", [{
+			database = new ddbriver({}, {
+			    region: "eu-west-1",
+			    dynamodb: '2012-08-10'
+			});
+
+			return database.query("ContainerUser", [{
 				key: "user",
 				operator: "EQ",
 				value: "test"
-			}], "user-index");
+			}], "user-index").then(function(data) {
 
-			query.should.eventually.be.fullfilled;
-			query.should.eventually.have.have.length(1);
-			query.should.eventually.have.deep.property("[0].id", "string");
-			query.should.eventually.have.deep.property("[0].number", 1234).notify(done);
+				data.should.have.length(1);
+				data.should.have.deep.property("[0].id", "string");
+				data.should.have.deep.property("[0].number", 1234);
+
+			});
 
 		});
 
@@ -60,31 +73,47 @@ describe("Node simple dynamo", function() {
 
     describe("Databse list", function() {
 
-    	before(function() {
+    	var ddbriver;
 
-    		this.timeout(5000);
-			AWS.mock('DynamoDB', 'scan', { Items: [
-				{
-					id: {"S": "string"},
-					number: {"N": "1234"}
+		before(function() {
+			ddbriver = proxyquire(__basePath + "/index.js", {
+				"aws-sdk": {
+					DynamoDB: function() {
+						return {
+							scan: function(params) {
+
+								return {
+									promise: () => Promise.resolve({ Items: [{
+										id: {"S": "string"},
+										number: {"N": "1234"}
+									}]})
+								};
+
+							}
+						};
+					}
 				}
-     		]});
+			});
+		});
 
-    	});
+		it("Should return the correct list", function() {
 
-		it("Should return the correct list", function(done) {
+			database = new ddbriver({}, {
+			    region: "eu-west-1",
+			    dynamodb: '2012-08-10'
+			});
 
-			this.timeout(5000);
-			query = database.list("is-users", [{
+			return database.list("is-users", [{
 				key: "email",
 				operator: "EQ",
 				value: "example@super.cool"
-			}]);
+			}]).then(function(data) {
 
-			query.should.eventually.be.fullfilled;
-			query.should.eventually.have.have.length(1);
-			query.should.eventually.have.deep.property("[0].id", "string");
-			query.should.eventually.have.deep.property("[0].number", 1234).notify(done);
+				data.should.have.length(1);
+				data.should.have.deep.property("[0].id", "string");
+				data.should.have.deep.property("[0].number", 1234);
+
+			});
 
 		});
 
@@ -92,25 +121,40 @@ describe("Node simple dynamo", function() {
 
     describe("Databse get", function() {
 
-    	before(function() {
+		before(function() {
+			ddbriver = proxyquire(__basePath + "/index.js", {
+				"aws-sdk": {
+					DynamoDB: function() {
+						return {
+							getItem: function(params) {
 
-    		this.timeout(5000);
-			AWS.mock('DynamoDB', 'getItem', { Item:
-				{
-					id: {"S": "string"},
-					number: {"N": "1234"}
+								return {
+									promise: () => Promise.resolve({ Item: {
+										id: {"S": "string"},
+										number: {"N": "1234"}
+									}})
+								};
+
+							}
+						};
+					}
 				}
 			});
+		});
 
-    	});
+		it("Should return the correct list", function() {
 
-		it("Should return the correct list", function(done) {
+			database = new ddbriver({}, {
+			    region: "eu-west-1",
+			    dynamodb: '2012-08-10'
+			});
 
-			this.timeout(5000);
-			query = database.get("is-users", "test");
-			query.should.eventually.be.fullfilled;
-			query.should.eventually.have.property("id", "string");
-			query.should.eventually.have.property("number", 1234).notify(done);
+			return database.get("is-users", "test").then(function(data) {
+
+				data.should.have.property("id", "string");
+				data.should.have.property("number", 1234);
+
+			});
 
 		});
 
@@ -125,22 +169,37 @@ describe("Node simple dynamo", function() {
 		}];
 
 		before(function() {
+			ddbriver = proxyquire(__basePath + "/index.js", {
+				"aws-sdk": {
+					DynamoDB: function() {
+						return {
+							batchGetItem: function(params) {
 
-			this.timeout(5000);
-			AWS.mock('DynamoDB', 'batchGetItem', {
-				Responses: {
-					"TABLE_NAME": utils.itemize(documents).L
-				},
-				UnprocessedKeys: {
-					"TABLE_NAME": null
+								return {
+									promise: () => Promise.resolve({
+										Responses: {
+											"TABLE_NAME": utils.itemize(documents).L
+										},
+										UnprocessedKeys: {
+											"TABLE_NAME": null
+										}
+									})
+								};
+
+							}
+						};
+					}
 				}
 			});
-
 		});
 
-		it("Should return the correct list", function(done) {
+		it("Should return the correct list", function(	) {
 
-			this.timeout(2000);
+			database = new ddbriver({}, {
+			    region: "eu-west-1",
+			    dynamodb: '2012-08-10'
+			});
+
 			let ids = [{
 				"partition": "123",
 				"sort": "ABC"
@@ -149,9 +208,11 @@ describe("Node simple dynamo", function() {
 				"sort": "DEF"
 			}];
 
-			query = database.getItems("TABLE_NAME", ids, {keys: ["partition", "sort"]});
-			query.should.eventually.be.fullfilled;
-			query.should.eventually.be.deep.equal(documents).notify(done);
+			return database.getItems("TABLE_NAME", ids, {keys: ["partition", "sort"]}).then(function(data) {
+
+				data.should.be.deep.equal(documents);
+
+			});
 
 		});
 
@@ -166,26 +227,44 @@ describe("Node simple dynamo", function() {
 		}];
 
 		before(function() {
+			ddbriver = proxyquire(__basePath + "/index.js", {
+				"aws-sdk": {
+					DynamoDB: function() {
+						return {
+							batchGetItem: function(params) {
 
-			this.timeout(5000);
-			AWS.mock('DynamoDB', 'batchGetItem', {
-				Responses: {
-					"TABLE_NAME": utils.itemize(documents).L
-				},
-				UnprocessedKeys: {
-					"TABLE_NAME": null
+								return {
+									promise: () => Promise.resolve({
+										Responses: {
+											"TABLE_NAME": utils.itemize(documents).L
+										},
+										UnprocessedKeys: {
+											"TABLE_NAME": null
+										}
+									})
+								};
+
+							}
+						};
+					}
 				}
 			});
-
 		});
 
-		it("Should return the correct list", function(done) {
+		it("Should return the correct list", function() {
 
-			this.timeout(2000);
+			database = new ddbriver({}, {
+			    region: "eu-west-1",
+			    dynamodb: '2012-08-10'
+			});
+
 			let ids = ["123", "456"];
-			query = database.getItems("TABLE_NAME", ids, {});
-			query.should.eventually.be.fullfilled;
-			query.should.eventually.be.deep.equal(documents).notify(done);
+
+			return database.getItems("TABLE_NAME", ids, {}).then(function(data) {
+
+				data.should.be.deep.equal(documents);
+
+			});
 		});
 
 	});
