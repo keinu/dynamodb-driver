@@ -6,7 +6,6 @@ var AWS = require('aws-sdk');
 
 var utils = require("./utils");
 
-const __basePath = process.env.PWD;
 global.__basePath = process.env.PWD;
 
 module.exports = function(awsconfig, dynamodboptions) {
@@ -305,7 +304,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 				if (err.code === "ProvisionedThroughputExceededException") {
 
-					console.log("Provisionned Capacity error when getting items, delaying 15 seconds");
+					console.log("Provisioned Capacity error when getting items, delaying 15 seconds");
 					return Promise.delay(15 * 1000).then(function() {
 
 						return getDocuments(Requests);
@@ -408,7 +407,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		return dynamodb.putItem(params).promise().then(function(data) {
+		return dynamodb.putItem(params).promise().then(function() {
 
 			return document;
 
@@ -475,7 +474,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 				if (err.code === "ProvisionedThroughputExceededException") {
 
-					console.log("Provisionned Capacity error when creating items, delaying 15 seconds");
+					console.log("Provisioned Capacity error when creating items, delaying 15 seconds");
 
 					return Promise.delay(15 * 1000).then(function() {
 
@@ -596,7 +595,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 				if (err.code === "ProvisionedThroughputExceededException") {
 
-					console.log("Provisionned Capacity error when deleting, delaying 15 seconds");
+					console.log("Provisioned Capacity error when deleting, delaying 15 seconds");
 					return Promise.delay(15 * 1000).then(function() {
 
 						return deleteItems(PutRequests);
@@ -742,15 +741,16 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		return dynamodb.updateItem(params).promise().then(function() {
+		return dynamodb.updateItem(params).promise().then(function(result) {
 
-			return document;
+			// Because ReturnValues is set to ALL_NEW, returned result reflects what is now in database.
+			return utils.deitemize(result.Attributes);
 
 		}).catch(function(err) {
 
 			if (err.code === "ProvisionedThroughputExceededException") {
 
-				console.log("Provisionned Capacity error when updating, delaying 15 seconds");
+				console.log("Provisioned Capacity error when updating, delaying 15 seconds");
 				return Promise.delay(15 * 1000).then(function() {
 
 					return update(table, document, conditions, keys, itemsToRemove);
