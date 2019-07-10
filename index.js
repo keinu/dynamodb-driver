@@ -179,7 +179,9 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		}
 
-		params.ScanFilter = keys;
+		if (Object.keys(keys).length) {
+			params.ScanFilter = keys;
+		}
 
 		if (options && options.paginate) {
 
@@ -214,6 +216,7 @@ module.exports = function(awsconfig, dynamodboptions) {
 			return paginate();
 
 		}
+
 
 		return dynamodb.scan(params).promise().then(function(data) {
 
