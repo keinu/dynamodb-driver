@@ -166,6 +166,19 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 		});
 
+		if (options && options.projection && options.projection.length) {
+
+			params.ProjectionExpression = options.projection.map(p => `#${p}`).join(",");
+			params.ExpressionAttributeNames = {};
+
+			options.projection.forEach(function(p) {
+
+				params.ExpressionAttributeNames[`#${p}`] = p;
+
+			});
+
+		}
+
 		params.ScanFilter = keys;
 
 		if (options && options.paginate) {
