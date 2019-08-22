@@ -144,6 +144,10 @@ module.exports = (function() {
 
 		}
 
+		if (item.B) {
+			return item.B;
+		}
+
 		var items = {};
 		Object.keys(item).forEach(function(key) {
 
