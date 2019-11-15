@@ -291,20 +291,32 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 				items = items.concat(docs);
 
-				if (batchResponse.UnprocessedKeys[table]) {
+				if (batchResponse.UnprocessedKeys[table] &&
+					Array.isArray(batchResponse.UnprocessedKeys[table].Keys)) {
 
-					// Keep the list of delays
-					series.push(delay);
+					console.log("%s unprocessed items", batchResponse.UnprocessedKeys[table].Keys.length);
+					let delayAction;
 
-					delay = previous + anteprevious;
+					if (options.noDelay) {
 
-					anteprevious = previous;
-					previous = delay;
+						delayAction = Promise.resolve();
 
-					console.log("%s unprocessed items", batchResponse.UnprocessedKeys[table].length);
-					console.log("Delaying next batch, %d seconds", delay);
+					} else {
 
-					return Promise.delay(delay * 1000).then(function() {
+						// Keep the list of delays
+						series.push(delay);
+
+						delay = previous + anteprevious;
+
+						anteprevious = previous;
+						previous = delay;
+
+						console.log("Delaying next batch, %d seconds", delay);
+						delayAction = Promise.delay(delay * 1000);
+
+					}
+
+					return delayAction.then(function() {
 						return getDocuments(batchResponse.UnprocessedKeys[table]);
 					});
 
@@ -361,10 +373,26 @@ module.exports = function(awsconfig, dynamodboptions) {
 
 			});
 
-			return getDocuments({
+
+			const params = {
 				ConsistentRead: options.consistentRead || false,
 				Keys: keys
-			});
+			};
+
+			if (options && Array.isArray(options.projection)) {
+
+				params.ProjectionExpression = options.projection.map(p => `#${p}`).join(",");
+
+				params.ExpressionAttributeNames = options.projection.reduce((attributeNames, attributeName) => {
+
+					attributeNames[`#${attributeName}`] = attributeName;
+					return attributeNames;
+
+				}, {});
+
+			}
+
+			return getDocuments(params);
 
 		};
 
