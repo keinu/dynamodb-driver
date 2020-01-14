@@ -12,7 +12,7 @@ describe("Node simple dynamo", function() {
     describe("Service invocation", function() {
 
     	SimpleDynamo = require('../index.js');
-		database = new SimpleDynamo({}, {
+		database = new SimpleDynamo({
 		    region: "eu-west-1",
 		    dynamodb: '2012-08-10'
 		});
@@ -50,7 +50,7 @@ describe("Node simple dynamo", function() {
 
 		it("should return a correct query object", function() {
 
-			database = new ddbriver({}, {
+			database = new ddbriver({
 			    region: "eu-west-1",
 			    dynamodb: '2012-08-10'
 			});
@@ -98,7 +98,7 @@ describe("Node simple dynamo", function() {
 
 		it("Should return the correct list", function() {
 
-			database = new ddbriver({}, {
+			database = new ddbriver({
 			    region: "eu-west-1",
 			    dynamodb: '2012-08-10'
 			});
@@ -144,7 +144,7 @@ describe("Node simple dynamo", function() {
 
 		it("Should return the correct list", function() {
 
-			database = new ddbriver({}, {
+			database = new ddbriver({
 			    region: "eu-west-1",
 			    dynamodb: '2012-08-10'
 			});
@@ -195,7 +195,7 @@ describe("Node simple dynamo", function() {
 
 		it("Should return the correct list", function(	) {
 
-			database = new ddbriver({}, {
+			database = new ddbriver({
 			    region: "eu-west-1",
 			    dynamodb: '2012-08-10'
 			});
@@ -253,7 +253,7 @@ describe("Node simple dynamo", function() {
 
 		it("Should return the correct list", function() {
 
-			database = new ddbriver({}, {
+			database = new ddbriver({
 			    region: "eu-west-1",
 			    dynamodb: '2012-08-10'
 			});

@@ -8,13 +8,11 @@ var utils = require("./utils");
 
 global.__basePath = process.env.PWD;
 
-module.exports = function(awsconfig, dynamodboptions) {
+module.exports = function(dynamoDbOptions) {
 
 	"use strict";
 
-	AWS.config.update(awsconfig);
-
-	var dynamodb = new AWS.DynamoDB(dynamodboptions);
+	var dynamodb = new AWS.DynamoDB(dynamoDbOptions);
 
 	var query = function(table, conditions, index, options) {
 
