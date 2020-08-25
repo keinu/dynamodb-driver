@@ -1,5 +1,5 @@
-var Promise = require("bluebird"),
-  shortid = require("shortid");
+var Promise = require("bluebird");
+const { v4: uuidv4 } = require("uuid");
 
 var AWS = require("aws-sdk");
 AWS.config.setPromisesDependency(Promise);
@@ -365,7 +365,7 @@ module.exports = function (dynamoDbOptions) {
 
   var create = function (table, document, conditions) {
     if (!document.id) {
-      document.id = shortid.generate();
+      document.id = uuidv4();
     }
 
     var item = {};
@@ -489,7 +489,7 @@ module.exports = function (dynamoDbOptions) {
       documentsToWrite.forEach(function (document) {
         // Dop not generate id if already present
         if (!document.id) {
-          document.id = shortid.generate();
+          document.id = uuidv4();
         }
 
         var item = {};
