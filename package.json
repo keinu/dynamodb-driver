@@ -17,9 +17,9 @@
   "author": "Xabi Errotabehere",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.306.0",
-    "bluebird": "^3.5.1",
-    "uuid": "^8.3.0"
+    "aws-sdk": "^2.870.0",
+    "bluebird": "^3.7.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "chai": "^3.4.1",
