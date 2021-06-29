@@ -84,7 +84,7 @@ keys: Should you table is not using id as primary key, you can specify your prim
 
 #### Conditional write
 
-Specify a value within brackets with a exclamation mark to perform an update only if the value doesn't exist
+Specify a value within brackets with an exclamation mark to perform an update only if the value doesn't exist
 
 ```javascript
 {
@@ -106,7 +106,7 @@ Specify a value within brackets with ++ to perform an increment by one of the ex
 
 #### Decrement
 
-Specify a value within brackets with -- to perform an decrement by one of the existing value
+Specify a value within brackets with -- to perform a decrement by one of the existing value
 
 ```javascript
 {
@@ -228,7 +228,7 @@ query:
 
 ```
 arrayOfIds:
-An array of ids to retrieve or an array of objects containing the partition and sort key of the items to retrieve
+An array of ids to retrieve, or an array of objects containing the partition and sort key of the items to retrieve
 
 options: is an optional object<br />
 options.consistentRead: true or false, will apply strongly consistent reads instead of the default setting (eventually consistent reads)<br />
@@ -335,8 +335,8 @@ keys: when not using id as a primary, you must specify the HASH and optionally R
 Will perform a scan operation on the selected table
 
 query: A specific query array to filter data against
-options: An object with a paginate property as number.
-        It will recursively fetch batches of paginate value until all data is fetched for this query
+options: An object with paginate property as number.
+        It will recursively fetch batches of paginate value until all data has been fetched for this query
         (note, no exponential backing off)
 
 ### Example

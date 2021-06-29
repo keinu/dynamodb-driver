@@ -1,91 +1,65 @@
-module.exports = (function() {
-
-	var itemize = function(param) {
-
+module.exports = (function () {
+	const itemize = function (param) {
 		if (param === null) {
-
-			return {"NULL" : true};
-
+			return { NULL: true };
 		} else if (param === "") {
-
-			return {"NULL" : true};
-
+			return { NULL: true };
 		} else if (typeof param === "boolean") {
-
-			return {"BOOL" : param};
-
+			return { BOOL: param };
 		} else if (typeof param === "string") {
-
-			return {"S" : param};
-
+			return { S: param };
 		} else if (param instanceof Date) {
-
-			return {"S" : param.toString()};
-
-		} else if (typeof param !== 'object' && !Array.isArray(param) && !isNaN(param) ) {
-
-			return {"N" : "" + param};
-
+			return { S: param.toString() };
+		} else if (typeof param !== "object" && !Array.isArray(param) && !isNaN(param)) {
+			return { N: "" + param };
 		} else if (Array.isArray(param) && param.length > 0) {
-
 			if (param.length === 1 && param[0] === null) {
-
-				return {"NULL" : true};
-
+				return { NULL: true };
 			} else if (typeof param[0] === "string") {
-
-				return {"SS" : param};
-
-			} else if (typeof param[0] !== 'object' && !isNaN(param[0])) {
-
-				return {"NS" : param.map(function(n) {return "" + n; })};
-
+				return { SS: param };
+			} else if (typeof param[0] !== "object" && !isNaN(param[0])) {
+				return {
+					NS: param.map(function (n) {
+						return "" + n;
+					})
+				};
 			} else {
-
-				return {"L" : param.map(function(value) {
-					return itemize(value);
-				})};
-
+				return {
+					L: param.map(function (value) {
+						return itemize(value);
+					})
+				};
 			}
-
 		} else if (Array.isArray(param) && param.length === 0) {
-
-			return {"NULL" : true};
-
+			return { NULL: true };
 		} else if (param && param.prototype) {
+			const object = {};
 
-			let object = {};
-
-			for (let key in param) {
+			for (const key in param) {
 				if (param.hasOwnProperty(key)) {
-					let value = itemize(param[key]);
+					const value = itemize(param[key]);
 					if (value !== false) {
 						object[key] = value;
 					}
 				}
 			}
 
-			return {"M" : object};
-
+			return { M: object };
 		} else {
+			const object = {};
 
-			let object = {};
-
-			for (let key in param) {
-				let value = itemize(param[key]);
+			for (const key in param) {
+				const value = itemize(param[key]);
 				if (value !== false) {
 					object[key] = value;
 				}
 			}
 
-			return {"M" : object};
+			return { M: object };
 		}
-
 	};
 
-
-	var deitemize = function(item) {
-
+	const deitemize = function (item) {
 		if (!item) {
 			return null;
 		}
@@ -103,11 +77,13 @@ module.exports = (function() {
 		}
 
 		if (item.NS) {
-			return item.NS.map(function(n) {return +n; });
+			return item.NS.map(function (n) {
+				return +n;
+			});
 		}
 
 		if (typeof item.BOOL !== "undefined") {
-			return (item.BOOL) ? true : false;
+			return item.BOOL ? true : false;
 		}
 
 		if (item.NULL === true) {
@@ -115,25 +91,18 @@ module.exports = (function() {
 		}
 
 		if (item.L) {
-
-			var array = [];
-			item.L.forEach(function(item) {
-
-				array.push(deitemize(item));
-
+			const array = [];
+			item.L.forEach(function (lItem) {
+				array.push(deitemize(lItem));
 			});
 
 			return array;
-
 		}
 
 		if (item.M) {
-
-			var object = {};
-			Object.keys(item.M).forEach(function(key) {
-
+			const object = {};
+			Object.keys(item.M).forEach(function (key) {
 				object[key] = deitemize(item.M[key]);
-
 			});
 
 			if (Object.keys(object).length > 0) {
@@ -141,23 +110,18 @@ module.exports = (function() {
 			}
 
 			return null;
-
 		}
 
-		var items = {};
-		Object.keys(item).forEach(function(key) {
-
+		const items = {};
+		Object.keys(item).forEach(function (key) {
 			items[key] = deitemize(item[key]);
-
 		});
 
 		return items;
-
 	};
 
 	return {
 		itemize: itemize,
 		deitemize: deitemize
 	};
-
 })();
