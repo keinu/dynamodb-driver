@@ -1,15 +1,17 @@
 {
 	"env": {
 		"node": true,
-		"mocha": true
+		"jest/globals": true
 	},
 	"extends": [
 		"eslint:recommended",
 		"plugin:node/recommended",
 		"plugin:security/recommended",
+		"plugin:jest/recommended",
+		"plugin:jest/style",
 		"prettier"
 	],
-	"plugins": ["prettier", "security"],
+	"plugins": ["prettier", "jest", "security"],
 	"parserOptions": {
 		"ecmaVersion": 2020
 	},

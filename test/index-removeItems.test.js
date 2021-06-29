@@ -1,29 +1,29 @@
 const mockAWSSinon = require("mock-aws-sinon");
 
-describe("Testing backoff", function () {
-	this.timeout(50000);
+const SimpleDynamo = require("../index");
 
-	describe("base test", function () {
-		const SimpleDynamo = require("../index");
-		const database = new SimpleDynamo(
-			{},
-			{
-				region: "eu-west-1",
-				dynamodb: "2012-08-10"
-			}
-		);
+describe("Testing backoff", () => {
+	jest.setTimeout(50000);
 
-		it("Remove should return UnprocessedItems", function (done) {
-			let i = 0;
-			const items = [];
+	describe("base test", () => {
+		let i = 0;
+		const items = [];
 
-			while (i < 200) {
-				items.push({
-					something: "cool"
-				});
+		while (i < 200) {
+			items.push({
+				something: "cool"
+			});
+			i++;
+		}
 
-				i++;
-			}
+		it("Remove should return UnprocessedItems", async () => {
+			const database = new SimpleDynamo(
+				{},
+				{
+					region: "eu-west-1",
+					dynamodb: "2012-08-10"
+				}
+			);
 
 			mockAWSSinon("DynamoDB", "batchWriteItem")
 				.returns({
@@ -106,9 +106,9 @@ describe("Testing backoff", function () {
 					UnprocessedItems: { test: items.splice(0, (Math.random() * 2) | 0) }
 				});
 
-			database.removeItems("test", items).then(function () {
-				done();
-			});
+			const result = await database.removeItems("test", items);
+
+			expect(result).toBeDefined();
 		});
 	});
 });
