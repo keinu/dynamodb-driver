@@ -10,7 +10,7 @@
 		"test:watch": "npm test -- --watch",
 		"lint": "eslint '**/*.js' --ignore-path .gitignore",
 		"lint:fix": "npm run lint -- --fix",
-		"prepare": "husky install",
+    "prepare": "husky install || true",
 		"pre-commit": "lint-staged"
 	},
 	"keywords": [
