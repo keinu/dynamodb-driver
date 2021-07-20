@@ -1,6 +1,6 @@
 {
 	"name": "dynamodb-driver",
-	"version": "1.9.3",
+	"version": "1.9.4",
 	"description": "Simple AWS DynamoDB driver for Node.js",
 	"main": "index.js",
 	"scripts": {
@@ -10,7 +10,7 @@
 		"test:watch": "npm test -- --watch",
 		"lint": "eslint '**/*.js' --ignore-path .gitignore",
 		"lint:fix": "npm run lint -- --fix",
-    "prepare": "husky install || true",
+		"prepare": "husky install || true",
 		"pre-commit": "lint-staged"
 	},
 	"keywords": [
