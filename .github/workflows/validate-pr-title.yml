@@ -1,0 +1,20 @@
+name: Validate PR Title
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: npm config set @cloudconformity:registry https://npm.pkg.github.com/
+      - run: npm config set //npm.pkg.github.com/:_authToken ${{ secrets.WORKFLOW_TOKEN }}
+      - run: git config --global url."https://${{ secrets.WORKFLOW_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+      - run: npm install
+      - uses: JulienKode/pull-request-name-linter-action@v0.2.0
+        with:
+          configuration-path: .commitlintrc.js
