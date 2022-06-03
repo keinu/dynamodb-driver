@@ -113,6 +113,14 @@ module.exports = function (dynamoDbOptions) {
 			return paginate();
 		}
 
+		if (options && options.limit) {
+			params.Limit = options.limit;
+		}
+
+		if (options && options.exclusiveStartKey) {
+			params.ExclusiveStartKey = options.exclusiveStartKey;
+		}
+
 		return dynamodb
 			.query(params)
 			.promise()
@@ -121,6 +129,15 @@ module.exports = function (dynamoDbOptions) {
 				data.Items.forEach(function (item) {
 					items.push(utils.deitemize(item));
 				});
+
+				// return an object with the items and
+				// last evaluated key if the option is specified.
+				if (options && options.getLastEvaluatedKey) {
+					return {
+						items,
+						lastEvaluatedKey: data.LastEvaluatedKey
+					};
+				}
 				return items;
 			});
 	};
