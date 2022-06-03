@@ -1,6 +1,6 @@
 {
   "name": "@cloudconformity/dynamodb-driver",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Simple AWS DynamoDB driver for Node.js",
   "main": "index.js",
   "scripts": {
