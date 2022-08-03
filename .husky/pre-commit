@@ -2,3 +2,11 @@
 . "$(dirname "$0")/_/husky.sh"
 
 npm run pre-commit
+
+
+if [ -x "$(command -v ggshield)" ]; 
+then
+	ggshield secret scan pre-commit
+else
+	echo 'ggshield is NOT installed!'
+fi
