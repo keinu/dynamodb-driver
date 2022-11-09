@@ -8,13 +8,13 @@ jobs:
   Check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@722adc63f1aa60a57ec37892e133b1d319cae598 # v2 commit hash, refers to actions/checkout@v2
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # refers to actions/checkout@v3.1.0
         with:
           persist-credentials: false
-      - uses: actions/setup-node@1f8c6b94b26d0feae1e387ca63ccbdc44d27b561 # v2 commit hash, refers to actions/setup-node@v2
+      - uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # refers to actions/setup-node@v3.5.1
         with:
           node-version: 16
-      - run: npm i npm@7 -g
+      - run: npm i npm@8 -g
       - run: npm config set @cloudconformity:registry https://npm.pkg.github.com/
       - run: npm config set //npm.pkg.github.com/:_authToken ${{ secrets.WORKFLOW_TOKEN }}
       - run: git config --global url."https://${{ secrets.WORKFLOW_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
