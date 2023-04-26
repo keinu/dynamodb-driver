@@ -8,6 +8,10 @@ jobs:
   Check:
     runs-on: >-
       ${{ fromJSON(format('{{"cloudconformity": "ubuntu-latest", "cloud-one-conformity": "ebf-pod-ubuntu-2004-slim@{0}-commitlint"}}', github.run_id))[github.repository_owner] }}
+    env:
+      ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+      ARTIFACTORY_TOKEN_EMAIL: ${{ secrets.ARTIFACTORY_TOKEN_EMAIL }}
+      ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL_VIRTUAL }}
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # refers to actions/checkout@v3.1.0
         with:
@@ -16,8 +20,10 @@ jobs:
         with:
           node-version: 16
       - run: npm i npm@8 -g
-      - run: npm config set @cloudconformity:registry https://npm.pkg.github.com/
-      - run: npm config set //npm.pkg.github.com/:_authToken ${{ secrets.WORKFLOW_TOKEN }}
-      - run: git config --global url."https://${{ secrets.WORKFLOW_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+      - run: npm config set registry https://$ARTIFACTORY_URL
+      - run: npm config set replace-registry-host npm.pkg.github.com
+      - run: npm config set //$ARTIFACTORY_URL:_auth "$(echo -n $ARTIFACTORY_TOKEN_EMAIL:$ARTIFACTORY_TOKEN | base64 -w 0)"
+      - run: npm config set //$ARTIFACTORY_URL:email "$ARTIFACTORY_TOKEN_EMAIL"
+      - run: npm config set //$ARTIFACTORY_URL:always-auth true
       - run: npm install
       - run: npm run check
