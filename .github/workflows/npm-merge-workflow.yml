@@ -7,7 +7,7 @@ on:
 jobs:
   Check:
     runs-on: >-
-      ${{ fromJSON(format('{{"cloudconformity": "ubuntu-latest", "cloud-one-conformity": "ebf-pod-ubuntu-2004-slim@{0}-commitlint"}}', github.run_id))[github.repository_owner] }}
+      ${{ fromJSON(format('{{"cloudconformity": "ubuntu-latest", "v1-cspm-conformity": "ebf-pod-ubuntu-2004-slim@{0}-commitlint"}}', github.run_id))[github.repository_owner] }}
     env:
       ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
       ARTIFACTORY_TOKEN_EMAIL: ${{ secrets.ARTIFACTORY_TOKEN_EMAIL }}
